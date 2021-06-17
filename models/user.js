@@ -19,6 +19,15 @@ const userSchema = new mongoose.Schema({
         type:String,
          required:true
     },
+    DOB:{
+         type: Date
+    },
+    Bio:{
+        type:String,
+    },
+    gender:{
+        type:String,
+    },
     isVerified:{
         type:Boolean,
         default:false

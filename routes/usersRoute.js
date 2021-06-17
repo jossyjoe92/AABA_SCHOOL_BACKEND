@@ -14,6 +14,12 @@ router.post('/newbusiness',requireLogin,business_controller.new_business)
 //Update Business profile
 router.put('/updatebusinesscoverphoto',requireLogin,business_controller.business_cover_photo)
 
+//Update User profile
+router.put('/update-user',requireLogin,user_controller.update_user_profile)
+
+//Update User profile photo
+router.put('/update_user_photo',requireLogin,user_controller.user_profile_photo)
+
 //Post a New Product
 router.post('/newpost',requireLogin,ads_controller.new_Post)
 
