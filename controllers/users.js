@@ -16,7 +16,7 @@ exports.user_profile = async (req,res)=>{
   
 }
 
-//Update Business Profile photo
+//Update User Profile
 exports.update_user_profile = async (req,res)=>{
 
     const updateUserProfile = {
@@ -52,4 +52,40 @@ exports.user_profile_photo = async (req,res)=>{
         return res.status(422).json({error:'could not update photo'})
     }
   
+}
+
+//Subscribe to a business
+exports.subscribe_business = async (req,res)=>{
+
+    try{
+        await Business.findByIdAndUpdate(req.body.subscribeId,{
+        $push:{
+            subscribers:req.user._id
+        }
+       }, {
+        new:true
+    })
+    const businessSubscribed = await User.findByIdAndUpdate(req.user._id,{
+            $push:{
+                businessSubscribed:req.body.subscribeId
+            }
+        },{
+            new:true
+        }).select("-password")
+        console.log(businessSubscribed)
+
+        res.status(200).json(businessSubscribed)
+    //     .select("-password")
+    //     .then(result=>{
+    //         res.json(result)
+    //     }).catch(err=>{
+    //         return res.status(422).json({error:err})
+    //     })
+    // })
+} catch (error) {
+    console.log(error)
+    return res.status(422).json({error:error})
+}
+
+    
 }

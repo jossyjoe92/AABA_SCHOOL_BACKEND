@@ -46,7 +46,8 @@ exports.new_business = async (req,res)=>{
 exports.business_profile = async (req,res)=>{
     try{
         const business =await Business.find({_id:req.params.id})
-        res.status(200).json(business)
+        const ads = await Ad.find({business:req.params.id})
+        res.status(200).json({business,ads})
     } catch (error) {
         console.log(error)
     }
@@ -68,6 +69,33 @@ exports.business_cover_photo = async (req,res)=>{
 }
 
 
+
+//Update User Business Profile
+exports.edit_business_profile = async (req,res)=>{
+
+    const {
+        businessName,
+        phone,
+        email,
+        description,
+        website,
+        state,
+        LGA,
+        address
+    } = req.body
+
+    if(!businessName||!email||!phone||!state||!LGA||!address){
+        return res.status(422).json({error:'Please add all the fields'})
+    }
+    try{
+       const updatedBusiness = await Business.findByIdAndUpdate(req.user.businessRegistered,req.body,{new:true})
+        
+            res.json({business:updatedBusiness,message:'Business Updated Successfully'})
+    } catch (error) {
+        return res.status(422).json({error:'could not update photo'})
+    }
+  
+}
 
 
 

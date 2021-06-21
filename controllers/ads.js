@@ -31,27 +31,69 @@ exports.new_Post = async (req,res)=>{
       })
       const saveAd = await ad.save()
 
-      //update Business details
-
-       const business = await Business.findOne({_id:req.user.businessRegistered})
-       business.noOfAds = business.noOfAds + 1;
-       const updatedBusiness = await business.save()
-
-      res.json({saveAd,message:'Business saved Successfully'})
+      res.json({saveAd,message:'Ad saved Successfully'})
   } catch (error) {
       console.log(error)
   }
 
 }
 
+//Edit and Update An Ad
+exports.edit_ad = async (req,res)=>{
+console.log(req.body.status)
+  const {
+    itemName,
+    category,
+    subCategory,
+    description,
+    status,
+    remark,
+    price,
+    mainImage,
+    secondImage,
+    thirdImage
+} = req.body
+
+// if(!Name||!email||!phone||!state||!LGA||!address){
+//     return res.status(422).json({error:'Please add all the fields'})
+// }
+try{
+   const updatedAd = await Ad.findByIdAndUpdate(req.params.id,req.body,{new:true})
+    
+        res.json({Ad:updatedAd,message:'Ad Updated Successfully'})
+} catch (error) {
+    return res.status(422).json({error:'could not update photo'})
+}
+}
+
 
 //Get post by sub-category
 exports.Product_category = async (req,res)=>{
-   
+
   try{
+
+    let {page, size} = req.query;
+    if(!page) page = 1;
+    if (!size) size = 10;
+
+    const limit = parseInt(size);
+    const skip = (page - 1)* size;
+    const postCount =await Ad.countDocuments({subCategory:req.params.subcategory})
+    
+    let next = postCount/page
+    let showNext;
+
+    if (next<=size){
+      showNext=false;
+    }else{
+      showNext=true
+    }
       const post =await Ad.find({subCategory:req.params.subcategory})
+      .limit(limit)
+      .skip(skip)
       .populate('business',"_id businessName phone LGA address isVerified")
-      res.status(200).json(post)
+      res.status(200).json({page,size,post:post,showNext})
+
   } catch (error) {
       console.log(error)
   }
