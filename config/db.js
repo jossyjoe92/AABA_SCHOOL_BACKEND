@@ -1,12 +1,15 @@
 const mongoose = require('mongoose')
 require('dotenv').config();
 const db = process.env.MONGODB_URI || process.env.ATLAS_URI
-//mongoURI
+// 
+// 
+//mongoURI 
  
 
 
 //Set up mongoose connection
 const connectDB = async ()=>{
+    
     try{
         await mongoose.connect(db, {
             useNewUrlParser:true,

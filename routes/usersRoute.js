@@ -21,6 +21,8 @@ router.put('/updatebusinesscoverphoto',requireLogin,business_controller.business
 //Update User profile
 router.put('/update-user',requireLogin,user_controller.update_user_profile)
 
+//Update User Notification
+router.put('/editnotification',requireLogin,user_controller.update_user_notification)
 
 //Subscribe to a business
 router.put('/subscribe',requireLogin,user_controller.subscribe_business)
@@ -41,6 +43,17 @@ router.put('/edit-ad/:id',ads_controller.edit_ad)
 //Get A registered User profile
 router.get('/userprofile/:id',user_controller.user_profile)
 
+//Get A registered User Notificaions
+router.get('/usernotification/:id',user_controller.user_notifications)
+
+//A Registered user makes offer for an item
+router.put('/makeoffer/:id',requireLogin,ads_controller.post_offer_request)
+
+//A Registered Business Accepts offer for an item
+router.put('/acceptoffer',requireLogin,ads_controller.accept_offer_request)
+
+//A User is rating a business
+router.put('/businessrating',requireLogin,business_controller.business_rating)
 
 
 

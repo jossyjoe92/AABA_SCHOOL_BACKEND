@@ -68,8 +68,6 @@ exports.business_cover_photo = async (req,res)=>{
   
 }
 
-
-
 //Update User Business Profile
 exports.edit_business_profile = async (req,res)=>{
 
@@ -97,5 +95,35 @@ exports.edit_business_profile = async (req,res)=>{
   
 }
 
+// Business is being rated
+
+exports.business_rating = async (req,res)=>{
+
+    // console.log(req.body.notificationId)
+    try{
+      const updatedBusiness = await Business.findByIdAndUpdate(req.body.businessId,
+        {
+            $push:{ rating:req.body.rating,
+                    transactions:req.user._id
+                }
+
+        },{new:true})
+
+        const updatedUserNotification = await User.findOne(req.user._id)
+        for (let i = 0; i<updatedUserNotification.notification.length;i++){
+       
+            if(updatedUserNotification.notification[i]._id==req.body.notificationId){
+                 updatedUserNotification.notification[i].rated=true   
+                 
+            }
+        }
+        await updatedUserNotification.save()
+            res.json({message:'Rating Submited Successfully'})
+    } catch (error) {
+        console.log(error)
+        return res.status(422).json({error:'could not update business'})
+    }
+  
+}
 
 

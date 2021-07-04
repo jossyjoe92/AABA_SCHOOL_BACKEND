@@ -17,7 +17,6 @@ module.exports = (req,res,next)=>{
         }
 
         const {_id} = payload
-        console.log(_id)
         User.findById(_id)
         .then(userdata=>{
            

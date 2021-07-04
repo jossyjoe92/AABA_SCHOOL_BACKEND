@@ -14,6 +14,9 @@ const adsSchema = new mongoose.Schema({
         type:String,
         required:true
     },
+    specificCategory:{
+        type:String,
+    },
     price:{
         type:String,
     },

@@ -28,7 +28,6 @@ exports.update_user_profile = async (req,res)=>{
         Bio:req.body.bio,
         gender:req.body.gender,
         
-
     }
     try{
        const updatedUser = await User.findByIdAndUpdate(req.user._id,updateUserProfile,{new:true})
@@ -40,7 +39,38 @@ exports.update_user_profile = async (req,res)=>{
   
 }
 
-//Update Business Profile photo
+//Get User Notification
+exports.user_notifications = async (req,res)=>{
+
+    try{
+        const notifications =await User.findOne({_id:req.params.id})
+        .select('_id notification')
+        res.status(200).json(notifications)
+    } catch (error) {
+        console.log(error)
+    }
+  
+}
+
+//Update User Notification
+exports.update_user_notification = async (req,res)=>{
+
+    try{
+       const updatedUserNotification = await User.findOne(req.user._id)
+       for (let i = 0; i<updatedUserNotification.notification.length;i++){
+           if(updatedUserNotification.notification[i].seen===false){
+                updatedUserNotification.notification[i].seen=true          
+           }
+       }
+       updatedUserNotification.save()
+        res.status(200).json({message:'update successful'})
+    } catch (error) {
+        return res.status(422).json({error:'could not update photo'})
+    }
+  
+}
+
+//Update User Profile photo
 exports.user_profile_photo = async (req,res)=>{
     try{
        const updatedUser = await User.findByIdAndUpdate(req.body.Id,{
@@ -53,6 +83,7 @@ exports.user_profile_photo = async (req,res)=>{
     }
   
 }
+
 
 //Subscribe to a business
 exports.subscribe_business = async (req,res)=>{
@@ -72,7 +103,6 @@ exports.subscribe_business = async (req,res)=>{
         },{
             new:true
         }).select("-password")
-        console.log(businessSubscribed)
 
         res.status(200).json(businessSubscribed)
     //     .select("-password")

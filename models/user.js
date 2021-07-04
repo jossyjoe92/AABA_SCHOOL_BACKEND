@@ -49,7 +49,18 @@ const userSchema = new mongoose.Schema({
       type:ObjectId,
         ref:'Business'
     },
-    notification:[],
+    notification:[{
+        seen:{type: Boolean, 'default':false},
+        notificationType:{type:String},
+        accepted:{type: Boolean, 'default':false},
+        rated:{type: Boolean, 'default':false},
+        sender:{type:String},
+        senderBusinessId:{type:String},
+        senderId:{type:String},
+        phone:{type:String},
+        timestamp:{type:Date, 'default':Date.now },
+        notice:{}
+    }],
     businessSubscribed:[{type:ObjectId,ref:"Business"}],
     //followers:[{type:ObjectId,ref:"User"}],
     //following:[{type:ObjectId,ref:"User"}]
@@ -58,10 +69,10 @@ const userSchema = new mongoose.Schema({
     timestamps: true
 })
 
-userSchema.pre('save', async function (next) {
-    const salt = await bcrypt.genSalt();
-    this.password = await bcrypt.hash(this.password, salt)
-    next();
-})
+// userSchema.pre('save', async function (next) {
+//     const salt = await bcrypt.genSalt();
+//     this.password = await bcrypt.hash(this.password, salt)
+//     next();
+// })
 
 module.exports = mongoose.model("User", userSchema);

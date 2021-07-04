@@ -53,13 +53,9 @@ const businessSchema = new mongoose.Schema({
     website:{
         type:String,
     },
-    noOfAds:{type:Number,default: 0},
-    sales:[{
-        type:String,
-    }],
+    transactions:[{type:ObjectId,ref:"User"}],
     rating:[{
         type:Number,
-        default:1
     }],
    subscribers:[{type:ObjectId,ref:"User"}],
    timestamp: { type: Date, 'default': Date.now }

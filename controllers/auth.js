@@ -32,10 +32,11 @@ exports.new_user_signup = async (req,role,res)=>{
         if(user){
             return res.status(422).json({error:"A user with this phone number already exists"})
         }
-        
+        const hashedPassword = await bcrypt.hash(password,12)
+
         const newUser = await User.create({
             email,
-            password,
+            password:hashedPassword,
             lastname,
             firstname,
             phone:phone_number,
@@ -109,24 +110,24 @@ exports.new_user_signup = async (req,role,res)=>{
 exports.user_login = async (req,res)=>{
 
     const {phone,password} = req.body;
+   
     const phone_number = `+234${phone.substring(phone.length - 10,phone.length)}`
-
     try {
         const user = await User.findOne({phone:phone_number})
-   
+
         if(!user){
+           
            return res.status(422).json({error:'Invalid email or password'})
         }
 
         const passwordMatch = await bcrypt.compare(password,user.password)
-
             //Check if User is registered and verified
         if(passwordMatch && user.isVerified){ 
 
             //asign jwt token and send user data and jwt token
             const token = jwt.sign({_id:user._id},process.env.jwt)
-            const {_id,isVerified,role,username,email,phone,businessRegistered,photo}=user
-            res.json({token,message:'User login Succesful', user:{_id,role,username,email,phone,photo,isVerified,businessRegistered}})
+            const {_id,isVerified,role,firstname,lastname,email,phone,businessRegistered,photo,notification}=user
+            res.json({token,message:'User login Succesful', user:{_id,role,firstname,lastname,email,phone,photo,isVerified,businessRegistered,notification}})
             
         }else if(passwordMatch && !user.isVerified){
 
