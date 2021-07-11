@@ -1,6 +1,7 @@
 const Business = require('../models/business')
 const User = require('../models/user')
 const Ad = require('../models/ads')
+const Request = require('../models/request')
 const requireLogin = require('../middleware/requireLogin')
 
 //Get User Profile
@@ -74,7 +75,7 @@ exports.update_user_notification = async (req,res)=>{
 exports.user_profile_photo = async (req,res)=>{
     try{
        const updatedUser = await User.findByIdAndUpdate(req.body.Id,{
-                $set:{photo:req.body.imgUrl}
+                $set:{profileImage:req.body.imgUrl}
             },{new:true})
         
             res.json(updatedUser)
@@ -115,7 +116,153 @@ exports.subscribe_business = async (req,res)=>{
 } catch (error) {
     console.log(error)
     return res.status(422).json({error:error})
-}
+    }
 
     
 }
+
+//Register a new Request
+exports.new_Request = async (req,res)=>{
+
+    const {itemName,category,description,LGA,price} = req.body
+    if(!itemName||!category||!LGA||!description){
+        return res.status(422).json({error:'Please add all the fields'})
+    }
+  
+    try {
+       
+        const request = new Request({
+            itemName,
+            category,
+            location:LGA,
+            description,
+            price,
+            postedBy:req.user,
+        })
+        await request.save()
+  
+        res.json({message:'Your request have been sent Successfully'})
+    } catch (error) {
+        console.log(error)
+    }
+  
+  }
+
+  //Get post by sub-category
+exports.Get_Users_Requests = async (req,res)=>{
+
+    try{
+      let {page, size} = req.query;
+      if(!page) page = 1;
+      if (!size) size = 5;
+  
+      const limit = parseInt(size);
+      const skip = (page - 1)* size;
+      
+        const requestCount =await Request.countDocuments({})
+      
+        let next = requestCount/page
+        let showNext;
+    
+        if (next<=size){
+          showNext=false;
+        }else{
+          showNext=true
+        }
+          const requests =await Request.find({})
+          .sort({timestamp: -1})
+          .limit(limit)
+          .skip(skip)
+          .populate('postedBy',"_id")
+          res.status(200).json({page,size,requests:requests,showNext}) 
+  
+    } catch (error) {
+        console.log(error)
+    }
+  
+  }
+
+
+  exports.single_Request = async (req,res)=>{
+    
+    try {
+      const request = await Request.findOne({_id:req.params.id})
+     
+        res.json(request)
+    } catch (error) {
+        console.log(error)
+    }
+  
+  }
+  //Update a Request
+  exports.update_request = async (req,res)=>{
+
+    const {
+        itemName,
+        category,
+        description,
+        price,
+        location:LGA
+    } = req.body;
+  
+    try {
+     
+      const updatedRequest = await Request.findByIdAndUpdate(req.params.id,req.body,{new:true})
+
+        res.json({updatedRequest:updatedRequest,message:'Your request have been updated Successfully'})
+    } catch (error) {
+        console.log(error)
+    }
+  
+  }
+
+ 
+  exports.offer_for_request = async (req,res)=>{
+      const {itemName,postedBy} = req.body
+      try {
+        await Request.findByIdAndUpdate(req.params.id,{
+            $push:{
+                offers:req.user.businessRegistered
+            }
+           }, {
+            new:true
+        })
+
+        const businessDetails = await Business.findOne({_id:req.user.businessRegistered})
+      
+        const notification = {
+            sender:businessDetails.businessName,
+            senderBusinessId:req.user.businessRegistered,
+            notificationType:'offer_for_request',
+            // phone:req.user.phone,
+            senderId:req.user._id,
+            notice:{
+                image:businessDetails.photo,
+              itemName,
+            }
+        }
+        //send notification to user about offer
+         await User.findByIdAndUpdate(postedBy,{
+            $push:{notification}
+        },{
+            new:true
+        })
+        res.status(200).json({message:'Offer submited successfully'})
+      } catch (error) {
+          
+      }
+
+  }
+
+  //Delete a Request
+exports.delete_request = async (req,res)=>{
+  
+    try {
+      const request = await Request.findByIdAndDelete(req.params.id)
+        res.json({request:request,message:'Your request have been deleted Successfully'})
+    } catch (error) {
+        console.log(error)
+    }
+  
+  }
+ 

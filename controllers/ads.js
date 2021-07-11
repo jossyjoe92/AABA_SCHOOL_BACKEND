@@ -83,7 +83,7 @@ exports.Product_category = async (req,res)=>{
     
     //No Specific category specified
     if(!specificCategory){
-      const postCount =await Ad.countDocuments({subCategory:req.params.subcategory,})
+      const postCount =await Ad.countDocuments({subCategory:req.params.subcategory})
     
       let next = postCount/page
       let showNext;
@@ -94,6 +94,7 @@ exports.Product_category = async (req,res)=>{
         showNext=true
       }
         const post =await Ad.find({subCategory:req.params.subcategory})
+        .sort({timestamp: -1})
         .limit(limit)
         .skip(skip)
         .populate('business',"_id businessName phone LGA address isVerified")
@@ -111,6 +112,7 @@ exports.Product_category = async (req,res)=>{
         showNext=true
       }
         const post =await Ad.find({subCategory:req.params.subcategory,specificCategory})
+        .sort({timestamp: -1})
         .limit(limit)
         .skip(skip)
         .populate('business',"_id businessName phone LGA address isVerified")
@@ -160,9 +162,28 @@ exports.search_ads = async (req,res)=>{
      }:{};
   
      try{
+      let {page,size} = req.query
+      if(!page) page = 1;
+      if (!size) size = 10;
+  
+      const limit = parseInt(size);
+      const skip = (page - 1)* size;
+
+      const postCount =await Ad.countDocuments({...searchKeyword })
+      let next = postCount/page
+      let showNext;
+  
+      if (next<=size){
+        showNext=false;
+      }else{
+        showNext=true
+      }
         const ads = await Ad.find( {...searchKeyword })
+        .limit(limit)
+        .skip(skip)
         .populate('business',"_id businessName phone LGA address isVerified photo rating timestamp")
-          res.json({ads})
+    
+        res.status(200).json({page,size,ads:ads,showNext})
      } catch (err) {
       console.log(err)
      }

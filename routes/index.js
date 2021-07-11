@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const requireLogin = require('../middleware/requireLogin')
 const business_controller = require('../controllers/business');
 const ads_controller = require('../controllers/ads');
+const user_controller = require('../controllers/users');
 
 //GET index page. 
 router.get('/', function(req, res) {
@@ -25,5 +25,7 @@ router.get('/search-ads/:query',ads_controller.search_ads)
 //Get A registered Business profile
 router.get('/businessprofile/:id',business_controller.business_profile)
 
+//Get registered Users Requests
+router.get('/users-requests',user_controller.Get_Users_Requests)
 
 module.exports = router;

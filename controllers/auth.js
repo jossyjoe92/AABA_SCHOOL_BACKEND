@@ -126,8 +126,8 @@ exports.user_login = async (req,res)=>{
 
             //asign jwt token and send user data and jwt token
             const token = jwt.sign({_id:user._id},process.env.jwt)
-            const {_id,isVerified,role,firstname,lastname,email,phone,businessRegistered,photo,notification}=user
-            res.json({token,message:'User login Succesful', user:{_id,role,firstname,lastname,email,phone,photo,isVerified,businessRegistered,notification}})
+            const {_id,isVerified,role,firstname,lastname,email,phone,businessRegistered,photo,profileImage,notification}=user
+            res.json({token,message:'User login Succesful', user:{_id,role,firstname,lastname,email,phone,profileImage,photo,isVerified,businessRegistered,notification}})
             
         }else if(passwordMatch && !user.isVerified){
 

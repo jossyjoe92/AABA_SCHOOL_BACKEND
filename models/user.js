@@ -45,6 +45,9 @@ const userSchema = new mongoose.Schema({
         type:String,
         default:"https://res.cloudinary.com/jossyjoe/image/upload/v1606258324/UserIcon_tmu1v6.jpg"
     },
+    profileImage:{
+        type:String,
+    },
     businessRegistered:{
       type:ObjectId,
         ref:'Business'
