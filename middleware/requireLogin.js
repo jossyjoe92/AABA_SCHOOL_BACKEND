@@ -18,6 +18,7 @@ module.exports = (req,res,next)=>{
 
         const {_id} = payload
         User.findById(_id)
+        .select('-password')
         .then(userdata=>{
            
             req.user = userdata

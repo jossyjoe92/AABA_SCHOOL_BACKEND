@@ -7,9 +7,10 @@ const business_controller = require('../controllers/business');
 const ads_controller = require('../controllers/ads');
 const user_controller = require('../controllers/users');
 const requireLogin = require('../middleware/requireLogin')
+const checkRole = require('../middleware/checkRole')
 
 //Register a new Business
-router.post('/newbusiness',requireLogin,business_controller.new_business)
+router.post('/newbusiness',requireLogin,checkRole(['users']),business_controller.new_business)
 
 //Update Business profile.
 router.put('/editbusiness',requireLogin,business_controller.edit_business_profile)
@@ -27,13 +28,22 @@ router.put('/editnotification',requireLogin,user_controller.update_user_notifica
 router.put('/subscribe',requireLogin,user_controller.subscribe_business)
 
 //Update User profile photo
-router.put('/update_user_photo',requireLogin,user_controller.user_profile_photo)
+router.put('/update_user_photo',requireLogin,checkRole(['user']),user_controller.user_profile_photo)
 
 //Post a New AD
 router.post('/newpost',requireLogin,ads_controller.new_Post)
 
 //Post a New Request
 router.post('/makerequest',requireLogin,user_controller.new_Request)
+
+//confirm users password
+router.post('/confirm-password',requireLogin,user_controller.confirm_Password)
+
+//update users password
+router.post('/update-password',requireLogin,user_controller.update_Password)
+
+//post a report 
+router.post('/postreport',requireLogin,ads_controller.post_report)
 
 //Get A registered User profile
 router.get('/userprofile/:id',requireLogin,user_controller.user_profile)

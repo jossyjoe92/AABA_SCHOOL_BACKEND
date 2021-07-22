@@ -50,6 +50,18 @@ const businessSchema = new mongoose.Schema({
         type:String,
         required:true
     },
+    facebookPage:{
+        type:String,
+    },
+    instagramPage:{
+        type:String,
+    },
+    twitterPage:{
+        type:String,
+    },
+    linkedInPage:{
+        type:String,
+    },
     website:{
         type:String,
     },

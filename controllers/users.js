@@ -3,6 +3,7 @@ const User = require('../models/user')
 const Ad = require('../models/ads')
 const Request = require('../models/request')
 const requireLogin = require('../middleware/requireLogin')
+const bcrypt = require('bcryptjs')
 
 //Get User Profile
 exports.user_profile = async (req,res)=>{
@@ -15,6 +16,59 @@ exports.user_profile = async (req,res)=>{
         console.log(error)
     }
   
+}
+
+//Comfirm user password for change
+exports.confirm_Password = async (req,res)=>{
+    const {password} = req.body;
+    try {
+
+        const user = await User.findOne({_id:req.user._id})
+      
+        if(!user){
+           
+            return res.status(422).json({error:'Invalid email or password'})
+         }
+ 
+         const passwordMatch = await bcrypt.compare(password,user.password)
+             //Check if password match
+         if(passwordMatch){ 
+
+             res.json({success:true})
+             
+         }else{
+                //  password does not match
+                 return res.status(422).json({success:false})
+             }
+    } catch (error) {
+        console.log(error)
+    }
+  
+}
+
+//User Forgot Password. Confirm User Phone Number
+
+exports.update_Password = async (req,res)=>{
+
+    const {password} = req.body;
+
+    try {
+
+        const hashedPasssword =await bcrypt.hash(password,12)
+
+         await User.findOneAndUpdate({_id:req.user._id},{
+            $set:{password:hashedPasssword}
+        },{
+            new:true
+        })
+      
+        res.status(200).json({message:'Password Updated Successfully'})  
+
+    } catch (error) {
+        console.log(error)
+        res.json({error:'Password Update was unSuccessfully'})  
+    }
+ 
 }
 
 //Update User Profile
@@ -77,6 +131,7 @@ exports.user_profile_photo = async (req,res)=>{
        const updatedUser = await User.findByIdAndUpdate(req.body.Id,{
                 $set:{profileImage:req.body.imgUrl}
             },{new:true})
+            .select('-password')
         
             res.json(updatedUser)
     } catch (error) {

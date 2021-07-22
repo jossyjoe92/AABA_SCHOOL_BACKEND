@@ -4,7 +4,7 @@ const connectDB = require('./config/db');
 const indexRouter = require('./routes/index');
 const authRouter = require('./routes/auth');
 const businessRouter = require('./routes/business');
-const adsRouter = require('./routes/ads');
+const adminRouter = require('./routes/adminRoute');
 const usersRouter = require('./routes/usersRoute');
 
 require('dotenv').config();
@@ -22,7 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/', indexRouter);
 app.use('/api', authRouter);
 app.use('/api/business', businessRouter);
-app.use('/api/ads', adsRouter);
+app.use('/api/admin', adminRouter);
 app.use('/api/users', usersRouter);
 
 

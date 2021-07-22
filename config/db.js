@@ -1,7 +1,11 @@
 const mongoose = require('mongoose')
 require('dotenv').config();
 const db = process.env.MONGODB_URI || process.env.ATLAS_URI
-//mongoURI 
+// mongoURI 
+// ATLAS_URI
+// mongoURI 
+// ATLAS_URI
+//
  
 //Set up mongoose connection
 const connectDB = async ()=>{

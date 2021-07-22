@@ -6,7 +6,8 @@ const requireLogin = require('../middleware/requireLogin')
 //Register a new business
 exports.new_business = async (req,res)=>{
 
-    const {businessName,email,state,LGA,address,description,phone,website} = req.body
+    const {businessName,email,state,LGA,address,description,phone,
+        website,facebookPage,instagramPage,twitterPage, linkedInPage} = req.body
     if(!businessName||!state||!LGA||!address||!phone){
         return res.status(422).json({error:'Please add all the fields'})
     }
@@ -22,6 +23,10 @@ exports.new_business = async (req,res)=>{
             description,
             phone,
             website,
+            facebookPage,
+            instagramPage,
+            twitterPage,
+            linkedInPage
             
         })
         const saveBusiness = await business.save()
@@ -79,7 +84,11 @@ exports.edit_business_profile = async (req,res)=>{
         website,
         state,
         LGA,
-        address
+        address,
+        facebookPage,
+        instagramPage,
+        twitterPage,
+        linkedInPage
     } = req.body
 
     if(!businessName||!email||!phone||!state||!LGA||!address){

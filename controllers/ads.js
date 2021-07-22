@@ -1,6 +1,7 @@
 const Business = require('../models/business')
 const User = require('../models/user')
 const Ad = require('../models/ads')
+const Report = require('../models/report')
 const requireLogin = require('../middleware/requireLogin')
 
 
@@ -260,3 +261,30 @@ exports.accept_offer_request = async (req,res)=>{
   }
 
 }
+
+    // A user Is reporting an ad 
+  exports.post_report = async (req,res)=>{
+    const {itemName,adId,reportReason,reportComment ,mainImage} = req.body
+    console.log(itemName,adId,reportReason,reportComment ,mainImage)
+    if(!itemName||!reportReason||!reportComment||!adId||!mainImage){
+        return res.status(422).json({error:'Please add all the fields'})
+    }
+  
+    try {
+       
+        const report = new Report({
+            itemName,
+            adId,
+            reportComment,
+            reportReason,
+            mainImage,
+            reportedBy:req.user,
+            
+        })
+        await report.save()
+      
+        res.json({message:'Ad Reported Successfully'})
+    } catch (error) {
+        console.log(error)
+    }
+  }
