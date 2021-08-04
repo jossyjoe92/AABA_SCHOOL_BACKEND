@@ -3,11 +3,7 @@ const {ObjectId} = mongoose.Schema.Types
 const bcrypt = require('bcryptjs')
 
 const userSchema = new mongoose.Schema({
-    firstname:{
-        type:String,
-        required:true
-    },
-    lastname:{
+    username:{
         type:String,
         required:true
     },
@@ -45,13 +41,7 @@ const userSchema = new mongoose.Schema({
         type:String,
         default:"https://res.cloudinary.com/jossyjoe/image/upload/v1606258324/UserIcon_tmu1v6.jpg"
     },
-    profileImage:{
-        type:String,
-    },
-    businessRegistered:{
-      type:ObjectId,
-        ref:'Business'
-    },
+ 
     notification:[{
         seen:{type: Boolean, 'default':false},
         notificationType:{type:String},
@@ -64,7 +54,6 @@ const userSchema = new mongoose.Schema({
         timestamp:{type:Date, 'default':Date.now },
         notice:{}
     }],
-    businessSubscribed:[{type:ObjectId,ref:"Business"}],
     //followers:[{type:ObjectId,ref:"User"}],
     //following:[{type:ObjectId,ref:"User"}]
 },

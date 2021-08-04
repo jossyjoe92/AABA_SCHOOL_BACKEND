@@ -11,7 +11,7 @@ const client = require('twilio')(accountSid, authToken);
 //Register a new user
 exports.new_user_signup = async (req,role,res)=>{
     
-    const {firstname,lastname,email,phone,password} = req.body;
+    const {username,email,phone,password} = req.body;
     const phone_number = `+234${phone.substring(phone.length - 10,phone.length)}`
 
     try {
@@ -37,8 +37,7 @@ exports.new_user_signup = async (req,role,res)=>{
         const newUser = await User.create({
             email,
             password:hashedPassword,
-            lastname,
-            firstname,
+            username,
             phone:phone_number,
             role
                
@@ -48,7 +47,7 @@ exports.new_user_signup = async (req,role,res)=>{
         const regUser = {
             id:newUser._id,
             email: newUser.email,
-            username:`${newUser.firstname} ${newUser.lastname}`,
+            username:newUser.username,
             phone: newUser.phone,
             role: newUser.role,
             isVerified:newUser.isVerified
@@ -79,6 +78,7 @@ exports.new_user_signup = async (req,role,res)=>{
  exports.confirm_user_phone = async (req,res)=>{
 
     const {token,phone,user} = req.body
+    console.log(token,phone,user)
     if(!token){
         return res.status(422).json({error:`please enter the token sent to ${phone}` })
     }
@@ -126,8 +126,8 @@ exports.user_login = async (req,res)=>{
 
             //asign jwt token and send user data and jwt token
             const token = jwt.sign({_id:user._id},process.env.jwt)
-            const {_id,isVerified,role,firstname,lastname,email,phone,businessRegistered,photo,profileImage,notification}=user
-            res.json({token,message:'User login Succesful', user:{_id,role,firstname,lastname,email,phone,profileImage,photo,isVerified,businessRegistered,notification}})
+            const {_id,isVerified,role,photo,username,email,phone}=user
+            res.json({token,message:'User login Succesful', user:{_id,role,username,email,phone,photo,isVerified}})
             
         }else if(passwordMatch && !user.isVerified){
 
