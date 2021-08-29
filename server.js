@@ -22,14 +22,10 @@ app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({limit: '50mb',extended:false}));
 
 
-// app.use('/', indexRouter);
+app.use('/', indexRouter);
 app.use('/api', authRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/users', usersRouter);
-
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
-  });
 
 
 app.listen(PORT, ()=>console.log(`server has started on port ${PORT}`));
