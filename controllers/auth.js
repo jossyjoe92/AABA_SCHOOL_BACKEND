@@ -30,7 +30,7 @@ exports.new_user_signup = async (req,role,res)=>{
         const user = await User.findOne({phone:phone_number})
 
         if(user){
-            return res.status(422).json({error:"A user with this phone number already exists"})
+            return res.status(422).json({error:"A user with this phone number already exists proceed to login"})
         }
         const hashedPassword = await bcrypt.hash(password,12)
 
@@ -98,7 +98,7 @@ exports.new_user_signup = async (req,role,res)=>{
             
             res.status(200).json({message:'User Registered successfully'})
         }else{
-            res.status(422).json("Please enter a vilid token")
+            res.status(422).json({error:"Please enter a vilid token"});
         }
         
     } catch (error) {
@@ -110,6 +110,7 @@ exports.new_user_signup = async (req,role,res)=>{
 exports.user_login = async (req,res)=>{
 
     const {phone,password} = req.body;
+    console.log(phone,password)
    
     const phone_number = `+234${phone.substring(phone.length - 10,phone.length)}`
     try {
@@ -203,7 +204,7 @@ exports.confirm_user_phone_number = async (req,res)=>{
 }
 
 
- //User Forgot Password. Confirm User Phone Number
+ //User Forgot Password. Update user Password
 
  exports.update_user_password = async (req,res)=>{
 

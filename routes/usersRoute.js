@@ -1,11 +1,26 @@
 const express = require('express')
 const router = express.Router()
 const mongoose = require('mongoose')
-const User = require('../models/user')
+
+const multer = require('multer')
+const upload = multer();
+
 
 const user_controller = require('../controllers/users');
+const family_controller = require('../controllers/familyController');
+const gift_controller = require('../controllers/giftController');
+const beloved_controller = require('../controllers/belovedController')
 const requireLogin = require('../middleware/requireLogin')
-const checkRole = require('../middleware/checkRole')
+// const checkRole = require('../middleware/checkRole')
+
+//Create a new Family
+router.post('/new-family',requireLogin,family_controller.new_family)
+
+//Create a new Gift
+router.post('/new-gift',requireLogin,upload.single('uploaded_file'),gift_controller.new_gift)
+
+//Create a new Beloved
+router.post('/new-beloved',requireLogin,upload.single('uploaded_file'),beloved_controller.new_beloved)
 
 //Update User profile
 router.put('/update-user',requireLogin,user_controller.update_user_profile)
@@ -17,11 +32,10 @@ router.put('/editnotification',requireLogin,user_controller.update_user_notifica
 router.put('/subscribe',requireLogin,user_controller.subscribe_business)
 
 //Update User profile photo
-router.put('/update_user_photo',requireLogin,checkRole(['user']),user_controller.user_profile_photo)
+router.put('/update_user_photo',requireLogin,user_controller.user_profile_photo)
 
 
-//Post a New Request
-router.post('/makerequest',requireLogin,user_controller.new_Request)
+
 
 //confirm users password
 router.post('/confirm-password',requireLogin,user_controller.confirm_Password)

@@ -1,6 +1,5 @@
 const mongoose = require('mongoose')
 const {ObjectId} = mongoose.Schema.Types
-const bcrypt = require('bcryptjs')
 
 const userSchema = new mongoose.Schema({
     username:{
@@ -54,17 +53,11 @@ const userSchema = new mongoose.Schema({
         timestamp:{type:Date, 'default':Date.now },
         notice:{}
     }],
-    //followers:[{type:ObjectId,ref:"User"}],
+    myFamilies:[{type:ObjectId,ref:"Family"}],
     //following:[{type:ObjectId,ref:"User"}]
 },
 {
     timestamps: true
 })
-
-// userSchema.pre('save', async function (next) {
-//     const salt = await bcrypt.genSalt();
-//     this.password = await bcrypt.hash(this.password, salt)
-//     next();
-// })
 
 module.exports = mongoose.model("User", userSchema);
