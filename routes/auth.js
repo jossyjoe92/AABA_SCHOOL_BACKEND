@@ -20,7 +20,8 @@ router.post('/signup-admin', async (req,res)=>{
 router.post('/signup-super-admin', async (req,res)=>{
     await auth_controller.new_user_signup(req,"super-admin",res)
 })
-
+//resend phone verification code
+router.post('/resend-verification',auth_controller.send_verification_code)
 //confirm phone verification code
 router.post('/verify-phone',auth_controller.confirm_user_phone)
 

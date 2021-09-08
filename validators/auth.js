@@ -30,4 +30,5 @@ exports.userLoginValidator  = [
         .isLength({ min: 11})
         .withMessage('invalid phone number')
 
-]
+];
+

@@ -19,22 +19,22 @@ exports.new_user_signup = async (req,role,res)=>{
        //This is to allow users login with either phone number or email address.
 
        if(email){
-        const user = await User.findOne({email})
+        let findUser = await User.findOne({email})
 
-        if(user){
+        if(findUser){
             return res.status(422).json({error:"A user with this email already exists"})
         }
        }
 
        //check if a user with this phone number alraedy exist
-        const user = await User.findOne({phone:phone_number})
+        let findUser = await User.findOne({phone:phone_number})
 
-        if(user){
+        if(findUser){
             return res.status(422).json({error:"A user with this phone number already exists proceed to login"})
         }
         const hashedPassword = await bcrypt.hash(password,12)
 
-        const newUser = await User.create({
+        const user = new User({
             email,
             password:hashedPassword,
             username,
@@ -42,7 +42,7 @@ exports.new_user_signup = async (req,role,res)=>{
             role
                
         })
-
+        const newUser = await user.save()
         
         const regUser = {
             id:newUser._id,
@@ -78,7 +78,7 @@ exports.new_user_signup = async (req,role,res)=>{
  exports.confirm_user_phone = async (req,res)=>{
 
     const {token,phone,user} = req.body
-    console.log(token,phone,user)
+   
     if(!token){
         return res.status(422).json({error:`please enter the token sent to ${phone}` })
     }
@@ -140,14 +140,14 @@ exports.user_login = async (req,res)=>{
                 isVerified:user.isVerified
             }
 
-                //This user is registered but not verified
-                const phoneVerification = await client.verify
-                .services(serviceID)
-                .verifications
-                .create({
-                    to:user.phone,
-                    channel:'sms'
-                })
+                // //This user is registered but not verified
+                // const phoneVerification = await client.verify
+                // .services(serviceID)
+                // .verifications
+                // .create({
+                //     to:user.phone,
+                //     channel:'sms'
+                // })
               
                 res.status(200).json({phoneVerification,message:'verify',user:regUser})  
 
@@ -163,6 +163,45 @@ exports.user_login = async (req,res)=>{
     //check if user exists in the DB
 }
 
+   //Resend Phone verification
+   exports.send_verification_code = async (req,res)=>{
+    const {phone} = req.body;
+    console.log(phone)
+   
+    const phone_number = `+234${phone.substring(phone.length - 10,phone.length)}`
+    try {
+        const newUser = await User.findOne({phone:phone_number})
+
+        if(!newUser){
+           
+            return res.status(422).json({error:'User does not exist'})
+         }
+
+         const regUser = {
+            id:newUser._id,
+            email: newUser.email,
+            username:newUser.username,
+            phone: newUser.phone,
+            role: newUser.role,
+            isVerified:newUser.isVerified
+        }
+
+
+         //This user is registered but not verified
+                const phoneVerification = await client.verify
+                .services(serviceID)
+                .verifications
+                .create({
+                    to:newUser.phone,
+                    channel:'sms'
+                })
+                res.status(200).json({phoneVerification,message:`Please Enter Verification code sent to ${newUser.phone}`,user:regUser})             
+       
+            }catch(e){
+                console.log(e)
+            }
+
+   }
  //User Forgot Password. Confirm User Phone Number
 
 exports.confirm_user_phone_number = async (req,res)=>{
