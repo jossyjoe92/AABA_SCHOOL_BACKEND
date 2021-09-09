@@ -110,7 +110,6 @@ exports.new_user_signup = async (req,role,res)=>{
 exports.user_login = async (req,res)=>{
 
     const {phone,password} = req.body;
-    console.log(phone,password)
    
     const phone_number = `+234${phone.substring(phone.length - 10,phone.length)}`
     try {
@@ -149,7 +148,7 @@ exports.user_login = async (req,res)=>{
                 //     channel:'sms'
                 // })
               
-                res.status(200).json({phoneVerification,message:'verify',user:regUser})  
+                res.status(200).json({message:'verify',user:regUser})  
 
             }else{
                 //This user is neither registered nor verified
@@ -166,7 +165,6 @@ exports.user_login = async (req,res)=>{
    //Resend Phone verification
    exports.send_verification_code = async (req,res)=>{
     const {phone} = req.body;
-    console.log(phone)
    
     const phone_number = `+234${phone.substring(phone.length - 10,phone.length)}`
     try {
