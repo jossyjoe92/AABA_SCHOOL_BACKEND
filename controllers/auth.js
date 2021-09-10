@@ -98,11 +98,11 @@ exports.new_user_signup = async (req,role,res)=>{
             
             res.status(200).json({message:'User Registered successfully'})
         }else{
-            res.status(422).json({error:"Please enter a vilid token"});
+            res.status(422).json({message:"Please enter a vilid token"});
         }
         
     } catch (error) {
-        res.json(error)
+        res.status(400).json({message:"Please enter a vilid token",error:error})
     }
   }
 
