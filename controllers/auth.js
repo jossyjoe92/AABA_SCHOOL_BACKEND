@@ -114,7 +114,7 @@ exports.user_login = async (req,res)=>{
     const phone_number = `+234${phone.substring(phone.length - 10,phone.length)}`
     try {
         const user = await User.findOne({phone:phone_number})
-        .populate('myFamilies',"_id familyName members photo gifts")
+        .populate('myFamilies')
 
 
         if(!user){

@@ -22,46 +22,53 @@ router.post('/new-gift',requireLogin,upload.single('uploaded_file'),gift_control
 //Create a new Beloved
 router.post('/new-beloved',requireLogin,upload.single('uploaded_file'),beloved_controller.new_beloved)
 
-//Update User profile
-router.put('/update-user',requireLogin,user_controller.update_user_profile)
+//Get a user's family list
+router.get('/myfamilies',requireLogin,family_controller.my_families)
 
-//Update User Notification
-router.put('/editnotification',requireLogin,user_controller.update_user_notification)
-
-//Subscribe to a business
-router.put('/subscribe',requireLogin,user_controller.subscribe_business)
-
-//Update User profile photo
-router.put('/update_user_photo',requireLogin,user_controller.user_profile_photo)
+//Get a single family
+router.get('/family/:id',requireLogin,family_controller.single_family)
 
 
+// //Update User profile
+// router.put('/update-user',requireLogin,user_controller.update_user_profile)
 
+// //Update User Notification
+// router.put('/editnotification',requireLogin,user_controller.update_user_notification)
 
-//confirm users password
-router.post('/confirm-password',requireLogin,user_controller.confirm_Password)
+// //Subscribe to a business
+// router.put('/subscribe',requireLogin,user_controller.subscribe_business)
 
-//update users password
-router.post('/update-password',requireLogin,user_controller.update_Password)
-
-
-//Get A registered User profile
-router.get('/userprofile/:id',requireLogin,user_controller.user_profile)
-
-//Get A single request to edit
-router.get('/get-users-request/:id',requireLogin,user_controller.single_Request)
-
-//Get A registered User Notificaions
-router.get('/usernotification/:id',requireLogin,user_controller.user_notifications)
+// //Update User profile photo
+// router.put('/update_user_photo',requireLogin,user_controller.user_profile_photo)
 
 
 
-//A User is updating his request
-router.put('/update-request/:id',requireLogin,user_controller.update_request)
 
-//A Business is making an offer for a users request
-router.put('/post-offer/:id',requireLogin,user_controller.offer_for_request)
+// //confirm users password
+// router.post('/confirm-password',requireLogin,user_controller.confirm_Password)
 
-//Delete a registered user request
-router.delete('/delete-request/:id',requireLogin,user_controller.delete_request)
+// //update users password
+// router.post('/update-password',requireLogin,user_controller.update_Password)
+
+
+// //Get A registered User profile
+// router.get('/userprofile/:id',requireLogin,user_controller.user_profile)
+
+// //Get A single request to edit
+// router.get('/get-users-request/:id',requireLogin,user_controller.single_Request)
+
+// //Get A registered User Notificaions
+// router.get('/usernotification/:id',requireLogin,user_controller.user_notifications)
+
+
+
+// //A User is updating his request
+// router.put('/update-request/:id',requireLogin,user_controller.update_request)
+
+// //A Business is making an offer for a users request
+// router.put('/post-offer/:id',requireLogin,user_controller.offer_for_request)
+
+// //Delete a registered user request
+// router.delete('/delete-request/:id',requireLogin,user_controller.delete_request)
 
 module.exports = router

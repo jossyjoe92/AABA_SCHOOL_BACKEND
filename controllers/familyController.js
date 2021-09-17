@@ -56,3 +56,37 @@ exports.new_family = async (req,res)=>{
     }
   
 }
+exports.my_families = async (req,res)=>{
+   
+    try {
+        const myFamilies = await Family.find({_id:{$in:req.user.myFamilies}})
+        // console.log(myFamilies)
+        res.status(200).json({myFamilies:myFamilies})
+    } catch (error) {
+        console.log(error)
+        return res.json({error:error})
+    }
+  
+   
+}
+
+// single_family
+exports.single_family = async (req,res)=>{
+   
+    try {
+        const family = await Family.findOne({_id:req.params.id})
+        // console.log(myFamilies)
+        res.status(200).json({family})
+    } catch (error) {
+        console.log(error)
+    }
+  
+    // .populate('postedBy',"_id name")
+    // .populate('comments.postedBy',"_id name")
+    // .then(posts=>{
+    //     res.json({posts})
+    // })
+    // .catch(err=>{
+    //     console.log(err)
+    // })
+}
