@@ -6,13 +6,16 @@ const Beloved = require('../models/beloved')
 // sharp 4 image resize
 const sharp = require('sharp');
 
-// Azure config
-const { BlobServiceClient } = require('@azure/storage-blob')
-const blobSasUrl = process.env.SAS_URL
+// Cloudinary config
+const cloudinary = require("../utils/cloudinary");
 
-const blobServiceClient = new BlobServiceClient(blobSasUrl)
-const containerName = 'beloved-dais-gift'
-const containerClient =blobServiceClient.getContainerClient(containerName);
+// // Azure config
+// const { BlobServiceClient } = require('@azure/storage-blob')
+// const blobSasUrl = process.env.SAS_URL
+
+// const blobServiceClient = new BlobServiceClient(blobSasUrl)
+// const containerName = 'beloved-dais-gift'
+// const containerClient =blobServiceClient.getContainerClient(containerName);
 //Register a new gift
 exports.new_gift = async (req,res)=>{
 
@@ -48,25 +51,30 @@ exports.new_gift = async (req,res)=>{
       
         } catch (error) {
             console.log(error)
+            res.json({error:error})
             
         }
     }else{
         try {
-            const semiTransparentRedPng = await sharp(req.file.buffer)
-            .resize(500,500)
-            .jpeg({ quality: 90 })
-            .toBuffer();
+            // const semiTransparentRedPng = await sharp(req.file.buffer)
+            // .resize(500,500)
+            // .jpeg({ quality: 90 })
+            // .toBuffer();
 
-            let possible = 'abcdefghijklmnopqrstuvwxyz1234567890',
-            imageUrl = '';
-            for(let i = 0; i<20; i++){
-                imageUrl += possible.charAt(Math.floor(Math.random() * possible.length));
-            }
-            const blockBlobClient = containerClient.getBlockBlobClient(`${imageUrl}.jpeg`)
-            const result = await blockBlobClient.uploadData(semiTransparentRedPng)
+            // let possible = 'abcdefghijklmnopqrstuvwxyz1234567890',
+            // imageUrl = '';
+            // for(let i = 0; i<20; i++){
+            //     imageUrl += possible.charAt(Math.floor(Math.random() * possible.length));
+            // }
+
+            const result = await cloudinary.uploader.upload(req.file.path);
+            // console.log(result)
+            // const blockBlobClient = containerClient.getBlockBlobClient(`${imageUrl}.jpeg`)
+            // const result = await blockBlobClient.uploadData(semiTransparentRedPng)
 
             const gift = new Gift({
-                photo:blockBlobClient.url,
+                // photo:blockBlobClient.url,
+                photo:result.secure_url,
                 giftTitle,
                 postedBy:req.user,
                 postedByAlias:alias,
@@ -76,7 +84,7 @@ exports.new_gift = async (req,res)=>{
             })
             const newGift = await gift.save()
 
-             //update family details
+            //  update family details
 
         const updateFamily = await Family.findByIdAndUpdate(newGift.family,{
             $push:{gifts:newGift._id}
@@ -85,7 +93,7 @@ exports.new_gift = async (req,res)=>{
         })
         res.json({message:'Gift uploaded Successfully'})
         } catch (error) {
-            console.log(error)
+            res.json({error:error})
         }
     
   

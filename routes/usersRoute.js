@@ -2,9 +2,10 @@ const express = require('express')
 const router = express.Router()
 const mongoose = require('mongoose')
 
-const multer = require('multer')
-const upload = multer();
+// const multer = require('multer')
+// const upload = multer();
 
+const upload = require("../utils/multer");
 
 const user_controller = require('../controllers/users');
 const family_controller = require('../controllers/familyController');
