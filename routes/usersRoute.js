@@ -20,6 +20,9 @@ router.post('/new-family',requireLogin,family_controller.new_family)
 //Create a new Gift
 router.post('/new-gift',requireLogin,upload.single('uploaded_file'),gift_controller.new_gift)
 
+//Create a new Service
+router.post('/new-service',requireLogin,upload.single('uploaded_file'),gift_controller.new_service)
+
 //Create a new Beloved
 router.post('/new-beloved',requireLogin,upload.single('uploaded_file'),beloved_controller.new_beloved)
 
@@ -29,6 +32,14 @@ router.get('/myfamilies',requireLogin,family_controller.my_families)
 //Get a single family
 router.get('/family/:id',requireLogin,family_controller.single_family)
 
+//Get gifts in a family
+router.get('/family-gifts/:familyId',requireLogin,family_controller.all_gifts)
+
+//Get services in a family
+router.get('/family-services/:familyId',requireLogin,family_controller.all_services)
+
+//Get all beloved in a family
+router.get('/family-beloved/:familyId',requireLogin,family_controller.all_beloved)
 
 // //Update User profile
 // router.put('/update-user',requireLogin,user_controller.update_user_profile)

@@ -1,40 +1,24 @@
 const mongoose = require('mongoose')
 const {ObjectId} = mongoose.Schema.Types
 
-const familySchema = new mongoose.Schema({
-    familyName:{
+const serviceSchema = new mongoose.Schema({
+    serviceTitle:{
         type:String,
         required:true
     },
-    purpose:{
+    postedBy:{type:ObjectId,ref:"User"},
+    postedByAlias:{type:String},
+    description:{
         type:String,
-       
     },
-    members:[{
-        role:{
-            type:String,
-            default: "member",
-            enum: ["member", "admin", "super-admin"]
-        },
-        member:{type:ObjectId,ref:"User"},
-        timestamp: { type: Date, 'default': Date.now }
-    }],
-   
+    family:{
+        type:ObjectId,ref:"Family"
+    },
     photo:{
         type:String,
         default:"https://res.cloudinary.com/jossyjoe/image/upload/v1606258324/UserIcon_tmu1v6.jpg"
     },
-    expectedGifts:[],
-    expectedServices:[],
-    gifts:[
-        {type:ObjectId,ref:"Gift"}
-    ],
-    services:[
-        {type:ObjectId,ref:"Service"}
-    ],
-    beloved:[
-        {type:ObjectId,ref:"Beloved"}
-    ]
+
  
     // notification:[{
     //     seen:{type: Boolean, 'default':false},
@@ -55,4 +39,4 @@ const familySchema = new mongoose.Schema({
     timestamps: true
 })
 
-module.exports = mongoose.model("Family", familySchema);
+module.exports = mongoose.model("Service", serviceSchema);
