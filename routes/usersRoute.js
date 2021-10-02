@@ -41,6 +41,13 @@ router.get('/family-services/:familyId',requireLogin,family_controller.all_servi
 //Get all beloved in a family
 router.get('/family-beloved/:familyId',requireLogin,family_controller.all_beloved)
 
+//Make request for a gift offered in your family
+router.put('/gift-request',requireLogin,gift_controller.gift_request)
+
+//Accept a members request for a gift
+router.put('/accept-gift-request',requireLogin,gift_controller.accept_gift_request)
+
+
 // //Update User profile
 // router.put('/update-user',requireLogin,user_controller.update_user_profile)
 

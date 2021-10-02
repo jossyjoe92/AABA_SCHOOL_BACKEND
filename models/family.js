@@ -34,7 +34,8 @@ const familySchema = new mongoose.Schema({
     ],
     beloved:[
         {type:ObjectId,ref:"Beloved"}
-    ]
+    ],
+    membersAlias:[{type:String}],
  
     // notification:[{
     //     seen:{type: Boolean, 'default':false},
