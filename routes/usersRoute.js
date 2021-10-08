@@ -35,6 +35,9 @@ router.get('/family/:id',requireLogin,family_controller.single_family)
 //Get gifts in a family
 router.get('/family-gifts/:familyId',requireLogin,family_controller.all_gifts)
 
+//Get a single gift
+router.get('/single-gift/:giftId',requireLogin,gift_controller.single_gift)
+
 //Get services in a family
 router.get('/family-services/:familyId',requireLogin,family_controller.all_services)
 
@@ -46,6 +49,9 @@ router.put('/gift-request',requireLogin,gift_controller.gift_request)
 
 //Accept a members request for a gift
 router.put('/accept-gift-request',requireLogin,gift_controller.accept_gift_request)
+
+//End request for a gift
+router.put('/end-gift-request',requireLogin,gift_controller.end_gift_request)
 
 
 // //Update User profile
