@@ -18,7 +18,18 @@ const belovedSchema = new mongoose.Schema({
         type:String,
         default:"https://res.cloudinary.com/jossyjoe/image/upload/v1606258324/UserIcon_tmu1v6.jpg"
     },
+    blovedRequest: [{
+        reason: String,
+        alias: String,
+        postedBy: { type: ObjectId, ref: "User" },
+        requestAccepted: { type: Boolean, 'default': false },
+        timestamp: { type: Date, 'default': Date.now }
+    }],
 
+    requestedBy: [{ type: ObjectId, ref: "User" }],// All who requested 4 d service
+
+    givenOut: { type: Boolean, 'default': false }, // Has d service been delivered
+    recievedBy:[ { type: ObjectId, ref: "User" }]// who are d members dat were offered d service
  
     // notification:[{
     //     seen:{type: Boolean, 'default':false},

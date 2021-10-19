@@ -16,106 +16,6 @@ const cloudinary = require("../utils/cloudinary");
 // const blobServiceClient = new BlobServiceClient(blobSasUrl)
 // const containerName = 'beloved-dais-gift'
 // const containerClient =blobServiceClient.getContainerClient(containerName);
-//Register a new gift
-exports.new_gift = async (req, res) => {
-  const { giftTitle, alias, description, family } = req.body;
-  // console.log(req.file);
-  // console.log(giftTitle,alias,description,family)
-
-  if (!giftTitle || !alias || !description || !family) {
-    return res.status(422).json({ error: "Please add all the fields" });
-  }
-
-  // check if alias already exists
-
-  try {
-    const family = await Family.findById(family);
-
-    if (family.membersAlias[0] !== undefined) {
-      var regex = new RegExp(family.membersAlias.join("|"), "i");
-      var aliasTaken = regex.test(alias);
-
-      if (aliasTaken) {
-        return res.status(422).json({ error: "Alias already exist" });
-      }
-    }
-  } catch (error) {
-    res.json({ error: error });
-  }
-
-  if (!req.file) {
-    try {
-      const gift = new Gift({
-        giftTitle,
-        postedBy: req.user,
-        postedByAlias: alias,
-        description,
-        family,
-      });
-      const newGift = await gift.save();
-
-      //update family details
-
-      await Family.findByIdAndUpdate(
-        newGift.family,
-        {
-          $push: { gifts: newGift._id, membersAlias: alias },
-        },
-        {
-          new: true,
-        }
-      );
-      res.json({ message: "Gift uploaded Successfully" });
-    } catch (error) {
-      console.log(error);
-      res.json({ error: error });
-    }
-  } else {
-    try {
-      // const semiTransparentRedPng = await sharp(req.file.buffer)
-      // .resize(500,500)
-      // .jpeg({ quality: 90 })
-      // .toBuffer();
-
-      // let possible = 'abcdefghijklmnopqrstuvwxyz1234567890',
-      // imageUrl = '';
-      // for(let i = 0; i<20; i++){
-      //     imageUrl += possible.charAt(Math.floor(Math.random() * possible.length));
-      // }
-
-      const result = await cloudinary.uploader.upload(req.file.path);
-      // console.log(result)
-      // const blockBlobClient = containerClient.getBlockBlobClient(`${imageUrl}.jpeg`)
-      // const result = await blockBlobClient.uploadData(semiTransparentRedPng)
-
-      const gift = new Gift({
-        // photo:blockBlobClient.url,
-        photo: result.secure_url,
-        giftTitle,
-        postedBy: req.user,
-        postedByAlias: alias,
-        description,
-        family,
-      });
-      const newGift = await gift.save();
-
-      //  update family details
-
-      const updateFamily = await Family.findByIdAndUpdate(
-        newGift.family,
-        {
-          $push: { gifts: newGift._id, membersAlias: alias },
-        },
-        {
-          new: true,
-        }
-      );
-      res.json({ message: "Gift uploaded Successfully" });
-    } catch (error) {
-      res.json({ error: error });
-    }
-  }
-};
 
 //Register a new Service
 exports.new_service = async (req, res) => {
@@ -202,34 +102,34 @@ exports.new_service = async (req, res) => {
   }
 };
 
-// Get a single gift
-exports.single_gift = async (req, res) => {
+// Get a single service
+exports.single_service = async (req, res) => {
   try {
-    const gift = await Gift.findOne({ _id: req.params.giftId });
+    const service = await Service.findOne({ _id: req.params.serviceId });
     // console.log(myFamilies)
-    res.status(200).json({ gift });
+    res.status(200).json({ service });
   } catch (error) {
     console.log(error);
     return res.json({ error: error });
   }
 };
 
-// Make a request for a gift
+// Make a request for a service
 
-exports.gift_request = async (req, res) => {
-  const { reason, alias, giftId } = req.body;
+exports.service_request = async (req, res) => {
+  const { reason, alias, serviceId } = req.body;
 
-  if (!reason || !alias || !giftId) {
+  if (!reason || !alias || !serviceId) {
     return res.status(422).json({ error: "Please add all the fields" });
   }
   try {
-    const gift = await Gift.findById(giftId).populate(
+    const service = await Service.findById(serviceId ).populate(
       "family",
       "_id membersAlias"
     );
 
     // Check if user has already made a request
-    if (gift.requestedBy.includes(req.user._id)) {
+    if (service.requestedBy.includes(req.user._id)) {
       return res.status(422).json({ error: "User already made request" });
     }
   
@@ -237,37 +137,37 @@ exports.gift_request = async (req, res) => {
     // check if alias already exists
     // first family alias
 
-    if (gift.family.membersAlias[0] !== undefined) {
+    if (service.family.membersAlias[0] !== undefined) {
 
-      var regex = new RegExp(gift.family.membersAlias.join("|"), "i");
+      var regex = new RegExp(service.family.membersAlias.join("|"), "i");
       var aliasTaken = regex.test(alias);
 
       if (aliasTaken) {
         return res.status(422).json({ error: "Alias already exist" });
       }
     } 
-      const giftRequest = {
+      const serviceRequest = {
         reason,
         alias,
         postedBy: req.user._id,
       };
 
-      const makeRequest = await Gift.findByIdAndUpdate(
-        req.body.giftId,
+      const makeRequest = await Service.findByIdAndUpdate(
+        req.body.serviceId,
         {
-          $push: { giftRequest: giftRequest, requestedBy: req.user._id },
+          $push: { serviceRequest: serviceRequest, requestedBy: req.user._id },
         },
         {
           new: true,
         }
       )
-        .populate("giftRequest.postedBy", "_id username photo")
+        .populate("serviceRequest.postedBy", "_id username photo")
         .populate("postedBy", "_id username photo");
 
-        const giftRequests = makeRequest.giftRequest
+        const serviceRequests = makeRequest.serviceRequest
       // Add user request Alias to family Alias
       await Family.findByIdAndUpdate(
-        gift.family._id,
+        service.family._id,
         {
           $push: { membersAlias: alias },
         },
@@ -276,7 +176,7 @@ exports.gift_request = async (req, res) => {
         }
       );
 
-      res.status(200).json(giftRequests);
+      res.status(200).json(serviceRequests);
   } catch (error) {
     console.log(error);
     return res.status(422).json({ error: err });
@@ -285,36 +185,31 @@ exports.gift_request = async (req, res) => {
 
 // Accept a request for a gift
 
-exports.accept_gift_request = async (req, res) => {
-  const { requesterId, giftId } = req.body;
+exports.accept_service_request = async (req, res) => {
+  const { requesterId, serviceId } = req.body;
 
-  if (!requesterId || !giftId) {
+  if (!requesterId || !serviceId) {
     return res.status(422).json({ error: "Please add all the fields" });
   }
   try {
-    // const gift = await Gift.findById(giftId)
+   
 
-    // Check if current user is the owner of the gift. Handled in d front end.
-    // if (gift.postedBy !== req.user._id) {
-    //     return res.status(422).json({ error: 'Only owner of gift can accept request' })
-    // }
-
-    const acceptRequest = await Gift.findByIdAndUpdate(
-      giftId,
+    const acceptRequest = await Service.findByIdAndUpdate(
+      serviceId,
       {
         $push: { recievedBy: requesterId },
-        // $set: { giftRequest:{requestAccepted: true} },
+        // $set: { serviceRequest:{requestAccepted: true} },
       },
       {
         new: true,
       }
     )
-      .populate("giftRequest.postedBy", "_id username photo")
+      .populate("serviceRequest.postedBy", "_id username photo")
       .populate("postedBy", "_id username photo")
       .populate("recievedBy", "_id username");
 
       const requestData = {
-        requests:acceptRequest.giftRequest,
+        requests:acceptRequest.serviceRequest,
         givenOut:acceptRequest.givenOut,
       } 
 
@@ -329,16 +224,16 @@ exports.accept_gift_request = async (req, res) => {
 
 // End request for a gift
 
-exports.end_gift_request = async (req, res) => {
-  const { giftId } = req.body;
+exports.end_service_request = async (req, res) => {
+  const { serviceId } = req.body;
 
-  if (!giftId) {
+  if (!serviceId) {
     return res.status(422).json({ error: "Please add all the fields" });
   }
   try {
 
-    const endRequest = await Gift.findByIdAndUpdate(
-      giftId,
+    const endRequest = await Service.findByIdAndUpdate(
+      serviceId,
       {
         $set: { givenOut: true },
       },
