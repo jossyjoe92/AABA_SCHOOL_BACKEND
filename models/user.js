@@ -6,23 +6,7 @@ const userSchema = new mongoose.Schema({
         type:String,
         required:true
     },
-    email:{
-        type:String,
-       
-    },
-    phone:{
-        type:String,
-         required:true
-    },
-    DOB:{
-         type: Date
-    },
-    Bio:{
-        type:String,
-    },
-    gender:{
-        type:String,
-    },
+    
     isVerified:{
         type:Boolean,
         default:false
@@ -33,12 +17,8 @@ const userSchema = new mongoose.Schema({
     },
     role:{
         type:String,
-        default: "user",
-        enum: ["user", "admin", "super-admin"]
-    },
-    photo:{
-        type:String,
-        default:"https://res.cloudinary.com/jossyjoe/image/upload/v1606258324/UserIcon_tmu1v6.jpg"
+        default: "student",
+        enum: ["student","staff", "accountant","admin", "super-admin"]
     },
  
     notification:[{
@@ -53,8 +33,7 @@ const userSchema = new mongoose.Schema({
         timestamp:{type:Date, 'default':Date.now },
         notice:{}
     }],
-    myFamilies:[{type:ObjectId,ref:"Family"}],
-    //following:[{type:ObjectId,ref:"User"}]
+
 },
 {
     timestamps: true

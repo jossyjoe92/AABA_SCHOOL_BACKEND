@@ -8,32 +8,33 @@ const requireLogin = require('../middleware/requireLogin')
 const auth_controller = require('../controllers/auth');
 const {runValidation} = require('../validators/index')
 const {userSignupValidator,userLoginValidator} = require('../validators/auth')
+const checkRole = require('../middleware/checkRole')
 
-router.post('/signup-user', userSignupValidator,runValidation, async (req,res)=>{
-    await auth_controller.new_user_signup(req,"user",res)
+router.post('/signup-student',requireLogin,checkRole(['super-admin','admin']), userSignupValidator,runValidation, async (req,res)=>{
+    await auth_controller.new_user_signup(req,"student",res)
 })
 
-router.post('/signup-admin', async (req,res)=>{
+router.post('/signup-staff',userLoginValidator,runValidation, async (req,res)=>{
+    await auth_controller.new_user_signup(req,"staff",res)
+})
+
+router.post('/signup-account', async (req,res)=>{
+    await auth_controller.new_user_signup(req,"accountant",res)
+})
+
+router.post('/signup-admin',requireLogin,checkRole(['super-admin']), async (req,res)=>{
     await auth_controller.new_user_signup(req,"admin",res)
 })
 
 router.post('/signup-super-admin', async (req,res)=>{
     await auth_controller.new_user_signup(req,"super-admin",res)
 })
-//resend phone verification code
-router.post('/resend-verification',auth_controller.send_verification_code)
-//confirm phone verification code
-router.post('/verify-phone',auth_controller.confirm_user_phone)
+
+// //confirm staff 
+// router.post('/confirm-staff',requireLogin,checkRole(['super-admin','admin']),auth_controller.confirm_staff)
 
 //user Login
 router.post('/login-user',userLoginValidator,runValidation, auth_controller.user_login)
-
-////user Forgot password
-router.post('/confirm-phone', auth_controller.confirm_user_phone_number)
-
-////user Forgot password
-router.post('/update-password', auth_controller.update_user_password)
-
 
 
 //Admin login
