@@ -36,6 +36,9 @@ router.put('/update-student-details/:id',requireLogin,checkRole(['super-admin','
 //Update School Calendar
 router.put('/updatecalendar',requireLogin,checkRole(['super-admin','admin']),useCalendar,admin_controller.update_school_calendar)
 
+//Update Term start
+router.put('/updatetermstart',requireLogin,checkRole(['super-admin','admin']),admin_controller.update_term_start)
+
 //Update Student photo
 router.put('/update-student-photo/:id',requireLogin,checkRole(['super-admin','admin']),admin_controller.update_student_photo)
 

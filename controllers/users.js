@@ -3,7 +3,7 @@ const Student = require('../models/stdDetails')
 const Result = require('../models/result')
 const requireLogin = require('../middleware/requireLogin')
 const bcrypt = require('bcryptjs')
-
+const TermStart = require('../models/termStart')
 
 // Get List of students by class
 exports.student_list = async (req, res) => {
@@ -34,12 +34,18 @@ exports.get_single_student = async (req, res) => {
 
 // get single student result
 exports.student_result = async (req, res) => {
+    try {
+        const termStart = await TermStart.findOne({})
+        const result = await Result.findOne({ studentDetails: req.params.id, year: req.calendar.year, term: req.calendar.term })
+        const stdDetails = await Student.findById(req.params.id)
+            .populate('user', "_id username")
 
-    const result = await Result.findOne({ studentDetails: req.params.id, year: req.calendar.year, term: req.calendar.term })
-    const stdDetails = await Student.findById(req.params.id)
-        .populate('user', "_id username")
-
-    res.json({ result, stdDetails })
+      
+        res.status(200).json({ stdDetails,termStart,result })
+    } catch (error) {
+        console.log(error)
+    }
+ 
 
 }
 
@@ -58,7 +64,7 @@ exports.class_broad_sheet = async (req, res) => {
     }
 }
 
-// update Class Broad
+// update Student Result
 exports.student_compute_result_update = async (req, res) => {
     const { data } = req.body
 
@@ -74,7 +80,7 @@ exports.student_compute_result_update = async (req, res) => {
     }
 
 }
-// update Class Broad
+// Reset Users Password
 exports.reset_Password = async (req, res) => {
     const { password, newPassword } = req.body
     console.log(password, newPassword)
@@ -97,7 +103,7 @@ exports.reset_Password = async (req, res) => {
             }, { new: true })
 
             res.json({ message: "Password Updated successfully" });
-        }else{
+        } else {
             return res.status(422).json({ error: 'Invalid current Password' })
         }
     } catch (error) {

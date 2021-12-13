@@ -38,12 +38,20 @@ exports.update_staff_details = async (req, res) => {
 // single staff Info
 exports.get_student_result_for_compute = async (req, res) => {
     try {
-        const student = await Student.findOne({ _id: req.params.id })
-            .select("id section firstname lastname DOB stdClass sex stateOfOrigin photo")
 
-        const subjects = await Subject.findOne({ section: student.section })
-            .select("id subjects")
-        return res.json({ student: student, subjects: subjects, calendar: req.calendar })
+        // Check if this student result for the term has been computed
+        const result = await Result.findOne({ studentDetails: req.params.id, year: req.calendar.year, term: req.calendar.term })
+
+        if (!result) {
+            const student = await Student.findOne({ _id: req.params.id })
+                .select("id section firstname lastname DOB stdClass sex stateOfOrigin photo")
+
+            const subjects = await Subject.findOne({ section: student.section })
+                .select("id subjects")
+            return res.json({ student: student, subjects: subjects, calendar: req.calendar })
+        }
+        return res.json({ hasResult: true })
+
 
     } catch (error) {
         console.log(error)
@@ -54,8 +62,8 @@ exports.get_student_result_for_compute = async (req, res) => {
 
 // single staff Info
 exports.save_student_result_after_compute = async (req, res) => {
-    const { id,resultId, scores, total, average, grade, scale, year, term, stdClass } = req.body
-    console.log(id,resultId, scores, total, average, grade, scale, year, term, stdClass)
+    const { id, resultId, scores, total, average, grade, scale, year, term, stdClass } = req.body
+   
     if (!id || !scores || !total || !average) {
         return res.status(422).json({ error: 'Please add all the fields' })
     }
@@ -87,11 +95,11 @@ exports.save_student_result_after_compute = async (req, res) => {
 
             if (check.length > 0) {
                 const result = await Result.findByIdAndUpdate(resultId, {
-                    $set:{scores,total,average,grade,scale}
+                    $set: { scores, total, average, grade, scale }
                 }, {
                     new: true
                 })
-                 
+
                 return res.status(422).json({ message: 'Result Updated successfully' })
             } else {
 

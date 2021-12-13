@@ -4,6 +4,7 @@ const Student = require('../models/stdDetails')
 const Staff = require('../models/staffDetails')
 const Subject = require('../models/subject')
 const Result = require('../models/result')
+const TermStart = require('../models/termStart')
 const bcrypt = require('bcryptjs')
 
 
@@ -115,7 +116,7 @@ exports.create_school_calendar = async (req, res) => {
     }
 }
 
-//Staff Validation List
+//Get School Calendar
 exports.get_school_calendar = async (req, res) => {
     if (req.calendar !== 'No Calendar created yet') {
         return res.json(req.calendar);
@@ -145,6 +146,33 @@ exports.update_school_calendar = async (req, res) => {
         return res.status(422).json({ error: 'could not update Calendar' })
     }
 }
+
+// Update Term Begins
+exports.update_term_start = async (req, res) => {
+    const { termStart } = req.body
+
+    try {
+        const termStarting = await TermStart.findOne({})
+        console.log(termStarting)
+        if (!termStarting) {
+            const newTerm = new TermStart({
+                termStart,
+
+            })
+            await newTerm.save()
+
+            return res.json({ message: "Term Start Updated successfully" });
+        }
+        termStarting.termStart = termStart
+        await termStarting.save()
+        res.json({ message: "Term Start Updated successfully" });
+
+    } catch (error) {
+
+        return res.status(422).json({ error: 'could not update Term Start' })
+    }
+}
+
 // update student Info
 exports.update_student_details = async (req, res) => {
 
@@ -182,7 +210,7 @@ exports.update_student_details = async (req, res) => {
         }, { new: true })
 
 
-        res.json({ student,message: 'Student Details updated Successfully' });
+        res.json({ student, message: 'Student Details updated Successfully' });
     } catch (error) {
         return res.json({ error: "Could not update student info" })
     }
@@ -191,13 +219,13 @@ exports.update_student_details = async (req, res) => {
 exports.update_student_photo = async (req, res) => {
 
     try {
-        const student = await Student.findByIdAndUpdate(req.params.id,{
-            $set:{photo:req.body.imgUrl}
-        },{new:true})
-        .select('-password')
-     
+        const student = await Student.findByIdAndUpdate(req.params.id, {
+            $set: { photo: req.body.imgUrl }
+        }, { new: true })
+            .select('-password')
 
-        res.json({data:student, message: "Photo Updated successfully" });
+
+        res.json({ data: student, message: "Photo Updated successfully" });
     } catch (error) {
         console.log(error)
         return res.status(422).json({ error: 'could not update photo' })
@@ -212,6 +240,7 @@ exports.hm_comment_student_result = async (req, res) => {
     try {
         const hm = await Staff.findOne({ user: hmId })
             .select("id firstname lastname");
+ 
         const result = await Result.findByIdAndUpdate(resultId, {
             $set: {
                 hmComment: {
