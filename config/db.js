@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 require('dotenv').config();
-const db = process.env.MONGODB_URI || process.env.ATLAS_URI
+const db = process.env.MONGODB_URI || process.env.mongoURI 
 // mongoURI 
 // ATLAS_URI
  

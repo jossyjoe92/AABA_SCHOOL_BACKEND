@@ -1,35 +1,69 @@
 const Payment = require('../models/payments');
 const StudentDetails = require('../models/stdDetails');
-
+const PaymentHistory = require('../models/paymentHistory')
 const SectionFees = require('../models/sectionFees');
+const stdDetails = require('../models/stdDetails');
 
 //Get All payments by date
 exports.payment_date = async (req, res) => {
     const { date } = req.params
-    // const { stdClass } = (req.query)
-    // console.log(stdClass)
+    const { stdClass } = (req.query)
 
-        const paymentdetails = await Payment.find({ timestamp: date })
-            .populate('studentDetails', "_id firstname  middlename lastname stdClass")
-        res.status(200).json(paymentdetails)
- 
+    try {
+        if (!stdClass) {
+            const paymentdetails = await PaymentHistory.find({ timestamp: date })
+                .populate('studentDetails', "_id firstname middlename lastname stdClass")
+            res.status(200).json(paymentdetails)
+        } else {
+            const paymentdetails = await PaymentHistory.find({ timestamp: date, stdClass })
+                .populate('studentDetails', "_id firstname middlename lastname stdClass")
+            res.status(200).json(paymentdetails)
+        }
+    } catch (error) {
+        console.log(error)
+    }
 
 }
 
 //Get All payments by Month
 exports.payment_by_month = async (req, res) => {
     const { month } = req.params
-    // const { stdClass } = (req.query)
-    // console.log(stdClass)
+    const { stdClass } = (req.query)
+    const year = new Date().getFullYear()
+    try {
+        if (!stdClass) {
+            const paymentdetails = await PaymentHistory.find({ paymentYr: year, paymentMth: month })
+                .populate('studentDetails', "_id firstname middlename lastname stdClass")
+            res.status(200).json(paymentdetails)
+        } else {
+            const paymentdetails = await PaymentHistory.find({ paymentYr: year, paymentMth: month, stdClass })
+                .populate('studentDetails', "_id firstname middlename lastname stdClass")
+            res.status(200).json(paymentdetails)
+        }
+    } catch (error) {
+        console.log(error)
+    }
 
-    if (!stdClass) {
-        const paymentdetails = await Payment.find({ paymentMth: month })
-            .populate('studentDetails', "_id firstname  middlename lastname stdClass")
-        res.status(200).json(paymentdetails)
-    } else {
-        const paymentdetails = await Payment.find({ timestamp: date, stdClass })
-            .populate('studentDetails', "_id name stdClass")
-        res.status(200).json(paymentdetails)
+}
+
+
+//Get All payments made in a Term
+exports.payment_by_term = async (req, res) => {
+    const { term } = req.params
+    const { stdClass, year } = (req.query)//Year is school session
+    try {
+        if (!stdClass) {
+            const paymentdetails = await PaymentHistory.find({ year, term })
+                .populate('studentDetails', "_id firstname middlename lastname stdClass")
+            console.log(paymentdetails)
+            res.status(200).json(paymentdetails)
+        } else {
+            const paymentdetails = await PaymentHistory.find({ year, term, stdClass })
+                .populate('studentDetails', "_id firstname middlename lastname stdClass")
+            res.status(200).json(paymentdetails)
+        }
+    } catch (error) {
+        console.log(error)
     }
 
 }
@@ -61,6 +95,24 @@ exports.section_fee = async (req, res) => {
             return res.status(200).json(savedFee)
         }
         res.status(200).json(sectionFees)
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
+// Get a student payment History in a term
+exports.student_payment_history = async (req, res) => {
+    const { id } = req.params
+    const { year, term } = req.calendar
+
+    try {
+
+        const paymentdetails = await PaymentHistory.find({ studentDetails: id, year, term })
+            .populate('studentDetails', "_id firstname middlename lastname section stdClass")
+        console.log(paymentdetails)
+        res.status(200).json(paymentdetails)
+
     } catch (error) {
         console.log(error)
     }
@@ -116,14 +168,12 @@ exports.student_payment_details = async (req, res) => {
         const stdPaymentDetails = await Payment.findOne({ studentDetails: req.params.id, year: req.calendar.year, term: req.calendar.term })
             .populate('studentDetails', "_id firstname lastname stdClass section sex")
 
-
         if (!stdPaymentDetails) {
             const stdDetails = await StudentDetails.findOne({ _id: req.params.id })
 
             // Fees for the section that the student belong to 
             const sectionFees = await SectionFees.findOne({ section: stdDetails.section })
 
-            const today = new Date().toDateString()
             const payment = new Payment({
                 section: stdDetails.section,
                 stdClass: stdDetails.stdClass,
@@ -144,18 +194,17 @@ exports.student_payment_details = async (req, res) => {
 
                 },
                 studentDetails: req.params.id,
-                // timestamp: today,
 
             })
             const savedPayment = await payment.save()
 
-            res.status(200).json({ payment: savedPayment, stdDetails, sectionFees })
+            return res.status(200).json({ payment: savedPayment, stdDetails, sectionFees })
         }
 
         const sectionFees = await SectionFees.findOne({ section: stdPaymentDetails.studentDetails.section })
         res.status(200).json({ payment: stdPaymentDetails, stdDetails: stdPaymentDetails.studentDetails, sectionFees })
     } catch (error) {
-
+        console.log(error)
     }
 
 }
@@ -164,20 +213,64 @@ exports.student_payment_details = async (req, res) => {
 exports.update_student_Payment = async (req, res) => {
 
     const {
-        paymentDetails
+        paymentDetails,
+        studentDetails,
+        paymentMode
     } = req.body
 
-    console.log(paymentDetails)
+
     const today = new Date().toDateString()
+    const paymentYr = new Date().getFullYear()
+    const paymentMth = new Date().getUTCMonth()
 
     try {
 
         const stdPaymentDetails = await Payment.findOne({ _id: req.params.id })
-    
+
+
+        // If no amount was entered Do not populate payment History
+        if (paymentDetails.total !== 0) {
+            // Save payment to student payment History using school calendar
+            paymentDetails.year = stdPaymentDetails.year
+            paymentDetails.month = stdPaymentDetails.paymentMth
+
+            const newPayment = new PaymentHistory({
+                section: stdPaymentDetails.section,
+                stdClass: stdPaymentDetails.stdClass,
+                year: stdPaymentDetails.year,//or use req.calendar.year
+                term: stdPaymentDetails.term,
+                paymentInfo: {
+                    registration: paymentDetails.registrationFeePaidNow,
+                    registrationRemark: paymentDetails.registrationFeeRemark,
+                    schoolFees: paymentDetails.schoolFeePaidNow,
+                    schoolFeesRemark: paymentDetails.schoolFeeRemark,
+                    uniform: paymentDetails.uniformFeePaidNow,
+                    uniformRemark: paymentDetails.uniformFeeRemark,
+                    books: paymentDetails.txtBookFeePaidNow,
+                    booksRemark: paymentDetails.txtBookFeeRemark,
+                    schBus: paymentDetails.schBusFeePaidNow,
+                    schBusRemark: paymentDetails.schBusFeeRemark,
+                    total: paymentDetails.total
+
+                },
+                studentDetails: studentDetails,
+                paymentMode,
+                paymentMth,
+                paymentYr,
+                timestamp: today
+
+            })
+            const savedPayment = await newPayment.save()
+
+        }
+
+        // Update student payment with current payment
 
         stdPaymentDetails.timestamp = today
+        stdPaymentDetails.paymentMth = paymentMth
+        stdPaymentDetails.paymentYr = paymentYr
         const feeDetails = stdPaymentDetails.paymentInfo
-       
+
         feeDetails.registration = feeDetails.registration + Number(paymentDetails.registrationFeePaidNow)
         feeDetails.registrationRemark = paymentDetails.registrationFeeRemark
         feeDetails.schoolFees = feeDetails.schoolFees + Number(paymentDetails.schoolFeePaidNow)
@@ -190,11 +283,13 @@ exports.update_student_Payment = async (req, res) => {
         feeDetails.schBusRemark = paymentDetails.schBusFeeRemark
         feeDetails.total = feeDetails.total + Number(paymentDetails.total)
 
-        
+
 
         const feePaid = await stdPaymentDetails.save()
-        return res.status(200).json({message:'Fee Updated Successfully'})
-    
+
+        console.log(feePaid)
+        return res.status(200).json({ message: 'Fee Updated Successfully' })
+
 
     } catch (error) {
         console.log(error)

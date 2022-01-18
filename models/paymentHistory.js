@@ -32,8 +32,10 @@ const paymentHistorySchema = new mongoose.Schema({
         type:ObjectId,
         ref:'Student'
     },
+    paymentMode:{type:String},
     timestamp: {type: Date},
-    paymentMth:{type:String}
+    paymentYr: { type: Number },//This is to enable d accountant query by current year not sch. calendar yr
+    paymentMth:{type:Number}
 })
 
 module.exports = mongoose.model("PaymentHistory", paymentHistorySchema);
