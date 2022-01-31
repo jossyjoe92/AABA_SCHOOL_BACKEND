@@ -210,6 +210,13 @@ exports.update_student_details = async (req, res) => {
         }, { new: true })
 
 
+
+         const user = await User.findOneAndUpdate({ _id:student.user}, {
+            $set: {
+              username
+            }
+        }, { new: true })
+        
         res.json({ student, message: 'Student Details updated Successfully' });
     } catch (error) {
         return res.json({ error: "Could not update student info" })
