@@ -55,7 +55,7 @@ exports.payment_by_term = async (req, res) => {
         if (!stdClass) {
             const paymentdetails = await PaymentHistory.find({ year, term })
                 .populate('studentDetails', "_id firstname middlename lastname stdClass")
-            console.log(paymentdetails)
+            // console.log(paymentdetails)
             res.status(200).json(paymentdetails)
         } else {
             const paymentdetails = await PaymentHistory.find({ year, term, stdClass })
@@ -110,7 +110,7 @@ exports.student_payment_history = async (req, res) => {
 
         const paymentdetails = await PaymentHistory.find({ studentDetails: id, year, term })
             .populate('studentDetails', "_id firstname middlename lastname section stdClass")
-        console.log(paymentdetails)
+        // console.log(paymentdetails)
         res.status(200).json(paymentdetails)
 
     } catch (error) {
@@ -219,9 +219,9 @@ exports.update_student_Payment = async (req, res) => {
     } = req.body
 
 
-    const today = new Date().toDateString()
-    const paymentYr = new Date().getFullYear()
-    const paymentMth = new Date().getUTCMonth()
+    const today = new Date("Nov 5 2021").toDateString()
+    const paymentYr = new Date("Nov 5 2021").getFullYear()
+    const paymentMth = new Date("Nov 5 2021").getUTCMonth()
 
     try {
 
@@ -287,7 +287,6 @@ exports.update_student_Payment = async (req, res) => {
 
         const feePaid = await stdPaymentDetails.save()
 
-        console.log(feePaid)
         return res.status(200).json({ message: 'Fee Updated Successfully' })
 
 
