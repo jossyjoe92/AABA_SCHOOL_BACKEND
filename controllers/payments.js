@@ -219,9 +219,9 @@ exports.update_student_Payment = async (req, res) => {
     } = req.body
 
 
-    const today = new Date("Nov 5 2021").toDateString()
-    const paymentYr = new Date("Nov 5 2021").getFullYear()
-    const paymentMth = new Date("Nov 5 2021").getUTCMonth()
+    const today = new Date().toDateString()
+    const paymentYr = new Date().getFullYear()
+    const paymentMth = new Date().getUTCMonth()
 
     try {
 
