@@ -60,7 +60,7 @@ exports.get_student_result_for_compute = async (req, res) => {
 }
 
 
-// single staff Info
+// save student result after compute
 exports.save_student_result_after_compute = async (req, res) => {
     const { id, resultId, scores, total, average, grade, scale, year, term, stdClass } = req.body
    
@@ -120,6 +120,32 @@ exports.save_student_result_after_compute = async (req, res) => {
                 res.json({ result: savedresult })
             }
         }
+
+    } catch (error) {
+        console.log(error)
+        // return res.status(404).json({ error: "student not found" })
+    }
+}
+
+// Save Student result Image url
+exports.save_student_result_image = async (req, res) => {
+
+    const { id, resultId, resultImage } = req.body
+   
+    if (!id || !resultImage || !resultId) {
+        return res.status(422).json({ error: 'Please add all the fields' })
+    }
+
+    try {
+
+        const result = await Result.findOne({ studentDetails: id,year:req.calendar.year, term: req.calendar.term})
+            .populate('studentDetails', "_id firstname lastname section stdClass")
+        
+             result.resultImage = resultImage 
+
+             const updatedResult = await result.save()
+         
+            res.json({ result: updatedResult })
 
     } catch (error) {
         console.log(error)

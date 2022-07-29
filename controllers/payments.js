@@ -167,10 +167,10 @@ exports.student_payment_details = async (req, res) => {
     try {
         const stdPaymentDetails = await Payment.findOne({ studentDetails: req.params.id, year: req.calendar.year, term: req.calendar.term })
             .populate('studentDetails', "_id firstname lastname stdClass section sex")
-
+        
         if (!stdPaymentDetails) {
             const stdDetails = await StudentDetails.findOne({ _id: req.params.id })
-
+            return console.log(stdDetails)
             // Fees for the section that the student belong to 
             const sectionFees = await SectionFees.findOne({ section: stdDetails.section })
 

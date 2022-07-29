@@ -52,6 +52,9 @@ const resultSchema = new mongoose.Schema({
             relationship:{type:String}
         
     },
+    resultImage:{
+        type:String
+    },
     studentDetails:{
         type:ObjectId,
         ref:'Student'

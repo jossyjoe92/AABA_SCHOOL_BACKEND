@@ -14,10 +14,10 @@ router.get('/:date',payment_controller.payment_date);
 // Get Payment By month
 router.get('/monthly_payment/:month',payment_controller.payment_by_month);
 
-// Get Payment By Term
+// Get All Payment made to the school By Term
 router.get('/term_payment/:term',payment_controller.payment_by_term);
 
-// Get Student Payment History
+// Get a particular Student Payment History
 router.get('/studentpaymenthistory/:id',useCalendar,payment_controller.student_payment_history);
 
 // Get Fees to pay For Each Section

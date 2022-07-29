@@ -34,18 +34,37 @@ exports.get_single_student = async (req, res) => {
 
 // get single student result
 exports.student_result = async (req, res) => {
-    try {
-        const termStart = await TermStart.findOne({})
-        const result = await Result.findOne({ studentDetails: req.params.id, year: req.calendar.year, term: req.calendar.term })
-        const stdDetails = await Student.findById(req.params.id)
-            .populate('user', "_id username")
 
-      
-        res.status(200).json({ stdDetails,termStart,result })
+    try {
+
+        if (req.user.role !== 'student') {
+
+            const termStart = await TermStart.findOne({})
+            const result = await Result.findOne({ studentDetails: req.params.id, year: req.calendar.year, term: req.calendar.term })
+            console.log(req.params.id)
+            if (!result) return res.status(422).json({ error: 'This student has no result for this term yet' })
+            const stdDetails = await Student.findById(req.params.id)
+                .populate('user', "_id username")
+            return res.status(200).json({ stdDetails, termStart, result })
+        } else {
+            // This is from the student portal
+            // const termStart = await TermStart.findOne({})
+
+            const result = await Result.findOne({ studentDetails: req.params.id, year: req.calendar.year, term: req.calendar.term })
+
+            // No Result Image has been uploaded for this student
+            if (!result || !result.resultImage) return res.status(422).json({ error: 'This student has no result for this term yet' })
+
+            // Result Image has been uploaded for this student
+
+            res.status(200).json({ result })
+
+        }
+
     } catch (error) {
         console.log(error)
     }
- 
+
 
 }
 

@@ -28,6 +28,9 @@ router.get('/compute-result/:id',requireLogin,checkRole(['super-admin','admin','
 //Save Computed Student Result
 router.post('/student-result',requireLogin,checkRole(['super-admin','admin','staff']),useCalendar,staff_controller.save_student_result_after_compute)
 
+//Save Student Result Image Url
+router.put('/student-result-image',requireLogin,checkRole(['super-admin','admin','staff']),useCalendar,staff_controller.save_student_result_image)
+
 //Teacher remark Student Result
 router.put('/teacher-remark',requireLogin,checkRole(['super-admin','admin','staff']),useCalendar,staff_controller.teacher_comment_student_result)
 
