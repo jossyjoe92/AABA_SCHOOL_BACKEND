@@ -1,6 +1,7 @@
 const User = require('../models/user')
 const Student = require('../models/stdDetails')
 const Result = require('../models/result')
+const Books = require('../models/bookList')
 const requireLogin = require('../middleware/requireLogin')
 const bcrypt = require('bcryptjs')
 const TermStart = require('../models/termStart')
@@ -99,18 +100,33 @@ exports.student_compute_result_update = async (req, res) => {
     }
 
 }
+
+// Get Student Book List
+exports.student_books = async (req, res) => {
+    try {
+        const studentBooks = await Student.findOne({ _id: req.params.id })
+        .select("id firstname middlename lastname section stdClass bookList")
+        // .populate('user', "_id username ")
+        res.json( studentBooks );
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
 // Reset Users Password
 exports.reset_Password = async (req, res) => {
     const { password, newPassword } = req.body
-    console.log(password, newPassword)
+
 
     if (!newPassword || !password) return res.status(422).json({ error: "Enter All fields" })
+    if (newPassword.length < 8) return res.status(422).json({ error: "Password must be at least 8 characters long" })
     try {
         const user = await User.findOne({ _id: req.user._id })
 
         if (!user) {
 
-            return res.status(422).json({ error: 'An-Authorized' })
+            return res.status(422).json({ error: 'Un-Authorized' })
         }
 
         const passwordMatch = await bcrypt.compare(password, user.password)

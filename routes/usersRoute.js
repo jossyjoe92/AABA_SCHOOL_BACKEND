@@ -16,8 +16,12 @@ router.get('/student-result/:id',requireLogin,useCalendar,users_controller.stude
 
 router.get('/studentbroad/:class',requireLogin,useCalendar,users_controller.class_broad_sheet)
 
+//Get a single student Book List
+router.get('/studentbook/:id',requireLogin,useCalendar,users_controller.student_books)
+
 // Update result from broadsheet
 router.put('/student-result-update/:id',requireLogin,useCalendar,users_controller.student_compute_result_update)
+
 
 // Update users Password
 router.put('/reset-password/:id',requireLogin,users_controller.reset_Password)
