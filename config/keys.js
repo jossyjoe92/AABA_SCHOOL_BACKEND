@@ -1,6 +1,6 @@
 module.exports={
     MONGOURI:process.env.MOGOURI,
-    JWT_SECRET:process.env.JWT_SECRET,
+    JWT_SECRET:process.env.jwt,
     SENDGRID_API:process.env.SENDGRID_API,
     EMAIL:process.env.EMAIL,
     accountSid:process.env.TWILIO_SID,
