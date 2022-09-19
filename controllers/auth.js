@@ -5,10 +5,6 @@ const StaffDetails = require('../models/staffDetails')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
-const { accountSid, authToken, serviceID } = require('../config/keys')
-
-//Twilio client for sending phone number verification sms
-const client = require('twilio')(accountSid, authToken);
 
 //Register a new user
 exports.new_user_signup = async (req, role, res) => {
