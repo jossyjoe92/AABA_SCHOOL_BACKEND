@@ -4,7 +4,7 @@ const StdDetails = require('../models/stdDetails')
 const StaffDetails = require('../models/staffDetails')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
-
+2
 
 //Register a new user
 exports.new_user_signup = async (req, role, res) => {
@@ -107,7 +107,6 @@ exports.user_login = async (req, res) => {
         const passwordMatch = await bcrypt.compare(password, user.password)
         //Check if User is registered and verified
         if (passwordMatch && user.isVerified) {
-
             //asign jwt token and send user data and jwt token
             const token = jwt.sign({ _id: user._id }, process.env.jwt)
             const { _id, isVerified, role, username } = user
