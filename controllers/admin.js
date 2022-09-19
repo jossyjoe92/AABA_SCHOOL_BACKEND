@@ -1,5 +1,7 @@
 const User = require('../models/user')
+const Books = require('../models/bookList')
 const SchoolCalendar = require('../models/calendar')
+const SchoolEventCalendar = require('../models/eventCalendar')
 const Student = require('../models/stdDetails')
 const Staff = require('../models/staffDetails')
 const Subject = require('../models/subject')
@@ -91,6 +93,75 @@ exports.new_subject_list = async (req, res) => {
 }
 
 
+//Create Book List
+exports.new_book_list = async (req, res) => {
+    const { bookClass, books } = req.body
+    // return console.log(books)
+    if (!bookClass || !books) {
+        return res.status(422).json({ error: 'please add all the fields' })
+    }
+
+    try {
+        const bookList = new Books({
+            bookClass,
+            list: books,
+            lastUpdated: new Date()
+
+        })
+        await bookList.save()
+        res.json({ message: "Book List Created successfully" });
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
+//Update Class Book List
+exports.update_class_booklist = async (req, res) => {
+    const { bookClass, books } = req.body
+    // return console.log(books)
+    if (!bookClass || !books) {
+        return res.status(422).json({ error: 'please add all the fields' })
+    }
+
+    try {
+        await Books.findByIdAndUpdate(req.params.id, {
+            $set: {
+                bookClass,
+                list: books,
+                lastUpdated: new Date()
+            }
+        }, { new: true })
+
+        res.json({ message: "Calendar Updated successfully" });
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
+//Update Student Book List
+exports.update_student_booklist = async (req, res) => {
+    const { books } = req.body
+
+    if (!books) {
+        return res.status(422).json({ error: 'please add all the fields' })
+    }
+
+    try {
+
+        const bookListUpdated = await Student.findByIdAndUpdate(req.params.id,
+            { $set: { 'bookList.list': books } }, {
+            new: true
+        })
+            .select("id firstname middlename lastname section stdClass bookList")
+
+        return res.status(200).json(bookListUpdated);
+    } catch (error) {
+        console.log(error)
+    }
+
+}
 //Create School calendar. Called After real DB is created deployment
 // comment out before deployment
 exports.create_school_calendar = async (req, res) => {
@@ -172,6 +243,51 @@ exports.update_term_start = async (req, res) => {
         return res.status(422).json({ error: 'could not update Term Start' })
     }
 }
+// get_school_event_calendar
+exports.get_school_event_calendar = async (req, res) => {
+
+    const { year, term } = req.calendar;
+    try {
+        const event = await SchoolEventCalendar.findOne({ year, term })
+
+        res.status(200).json({ event })
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+// Update school event calendar
+exports.update_event_calender = async (req, res) => {
+    const { year, term, week } = req.calendar
+    const { eventData } = req.body
+
+    try {
+        const eventCalendar = await SchoolEventCalendar.findOne({ year, term })
+        if (!eventCalendar) {
+            const calendar = new SchoolEventCalendar({
+                year,
+                term,
+                events: eventData
+            })
+            const data = await calendar.save()
+            return res.json({ message: "Event Calendar Updated successfully" });
+        }
+        console.log(eventcalendar)
+        return
+        const data = await SchoolEventCalendar.findOneAndUpdate({ year, term }, {
+            $set: { year, term, events: eventData }
+        }, { new: true })
+
+        console.log(data)
+
+        res.json({ message: "Event Calendar Updated successfully" });
+
+    } catch (error) {
+        console.log(error)
+        return res.status(422).json({ error: 'could not update Calendar of Events' })
+    }
+}
+
 
 // update student Info
 exports.update_student_details = async (req, res) => {
@@ -211,12 +327,12 @@ exports.update_student_details = async (req, res) => {
 
 
 
-         const user = await User.findOneAndUpdate({ _id:student.user}, {
+        const user = await User.findOneAndUpdate({ _id: student.user }, {
             $set: {
-              username
+                username
             }
         }, { new: true })
-        
+
         res.json({ student, message: 'Student Details updated Successfully' });
     } catch (error) {
         return res.json({ error: "Could not update student info" })
@@ -247,7 +363,7 @@ exports.hm_comment_student_result = async (req, res) => {
     try {
         const hm = await Staff.findOne({ user: hmId })
             .select("id firstname lastname");
- 
+
         const result = await Result.findByIdAndUpdate(resultId, {
             $set: {
                 hmComment: {

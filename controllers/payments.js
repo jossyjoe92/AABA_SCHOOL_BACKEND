@@ -2,7 +2,9 @@ const Payment = require('../models/payments');
 const StudentDetails = require('../models/stdDetails');
 const PaymentHistory = require('../models/paymentHistory')
 const SectionFees = require('../models/sectionFees');
-const stdDetails = require('../models/stdDetails');
+const Requisition = require('../models/requisition');
+const Salary = require('../models/salary');
+const async = require('async')
 
 //Get All payments by date
 exports.payment_date = async (req, res) => {
@@ -167,10 +169,10 @@ exports.student_payment_details = async (req, res) => {
     try {
         const stdPaymentDetails = await Payment.findOne({ studentDetails: req.params.id, year: req.calendar.year, term: req.calendar.term })
             .populate('studentDetails', "_id firstname lastname stdClass section sex")
-        
+
         if (!stdPaymentDetails) {
             const stdDetails = await StudentDetails.findOne({ _id: req.params.id })
-            return console.log(stdDetails)
+
             // Fees for the section that the student belong to 
             const sectionFees = await SectionFees.findOne({ section: stdDetails.section })
 
@@ -290,6 +292,233 @@ exports.update_student_Payment = async (req, res) => {
         return res.status(200).json({ message: 'Fee Updated Successfully' })
 
 
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
+// Expenses Section
+
+// save-requisition
+exports.create_requisition = async (req, res) => {
+    const { name, term, date, month, schoolYear, requisitionYear, itemData } = req.body
+
+    if (!name || !term || !date || !month || !schoolYear || !requisitionYear) {
+        return res.status(422).json({ error: 'please add all the fields' })
+    }
+    try {
+
+        const requisition = new Requisition({
+            name,
+            term,
+            date: new Date(date).toDateString(),
+            month,
+            requisitionYear,
+            schoolYear,
+            items: itemData
+
+        })
+        await requisition.save()
+        res.json({ message: "Requisition Created successfully" });
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+// Get requisitions
+exports.view_requisitions = async (req, res) => {
+    const { sort } = req.params
+    const { sortValue, year } = req.query
+
+    try {
+        if (sort === 'month') {
+            const requisitions = await Requisition.find({ month: sortValue, requisitionYear: new Date().getFullYear() })
+            res.status(200).json(requisitions)
+        } else if (sort === 'date') {
+            const requisitions = await Requisition.find({ date: new Date(sortValue).toDateString() })
+
+            res.status(200).json(requisitions)
+        } else if (sort === 'term') {
+            const requisitions = await Requisition.find({ schoolYear: year, term: sortValue })
+            res.status(200).json(requisitions)
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+//Update requisitions
+exports.update_requisition = async (req, res) => {
+    const { id } = req.params
+
+    try {
+        const result = await Requisition.findByIdAndUpdate(id, req.body, {
+            new: true
+        })
+        res.json({ result, message: 'Requisition updated Successfully' })
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+// Salary Section
+
+// Pay Salary
+exports.pay_salary = async (req, res) => {
+    const { staff_id, term, paymentDate, month, schoolYear, paymentYear, grossSalary, deductions, netSalary, paymentMtd, comment } = req.body
+
+    if (!staff_id || !term || !paymentDate || !month || !schoolYear || !paymentYear || !grossSalary || !netSalary) {
+        return res.status(422).json({ error: 'please add all the fields' })
+    }
+
+    try {
+        // Check if this staff has already been paid for the month
+        const salaryPaid = await Salary.findOne({ schoolYear, paymentYear, month })
+
+        if (salaryPaid) return res.status(422).json({ error: 'This staff has been paid for the selected month. Please check payment history to edit payment' })
+        const paySalary = new Salary({
+            staffDetails: staff_id,
+            term,
+            paymentDate: new Date(paymentDate).toDateString(),
+            month,
+            paymentMtd,
+            paymentYear,
+            schoolYear,
+            grossSalary,
+            deductions,
+            netSalary,
+            comment
+
+
+        })
+        await paySalary.save()
+        res.json({ message: "Salary Paid successfully" });
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+// Get salaries
+exports.view_salaries = async (req, res) => {
+    const { sort } = req.params
+    const { sortValue, year } = req.query
+
+    try {
+        if (sort === 'month') {
+            const salaries = await Salary.find({ month: sortValue, paymentYear: new Date().getFullYear() })
+                .populate('staffDetails', "_id firstname lastname classTeacher")
+            res.status(200).json(salaries)
+        } else if (sort === 'date') {
+            const salaries = await Salary.find({ paymentDate: new Date(sortValue).toDateString() })
+                .populate('staffDetails', "_id firstname lastname classTeacher")
+            res.status(200).json(salaries)
+        } else if (sort === 'term') {
+            const salaries = await Salary.find({ schoolYear: year, term: sortValue })
+                .populate('staffDetails', "_id firstname lastname classTeacher")
+            res.status(200).json(salaries)
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+
+// Get single staff salary history
+exports.view_salary_history = async (req, res) => {
+    const { id } = req.params
+    const { session, term } = req.query
+
+    try {
+        const salaryHistory = await Salary.find({ staffDetails: id, schoolYear: session, term })
+        res.status(200).json(salaryHistory)
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+// Get single salary info
+exports.single_salary = async (req, res) => {
+
+    const { id } = req.params
+
+    try {
+        const singleSalary = await Salary.findById(id)
+        res.status(200).json(singleSalary)
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+// Update Sigle Salary Info
+exports.single_salary_update = async (req, res) => {
+
+    const { id } = req.params
+
+    try {
+        const result = await Salary.findByIdAndUpdate(id, req.body, {
+            new: true
+        })
+        res.json({ result, message: 'Salary updated Successfully' })
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+// Get Financial Summary
+exports.financial_summary = async (req, res) => {
+
+    const { sort } = req.params
+    const { sortValue, year } = req.query
+    
+
+    async function getRequisitions(sort, sortValue,year) {
+        if (sort === 'month') {
+            const requisitions = await Requisition.find({ month: sortValue, requisitionYear: new Date().getFullYear() })
+            return requisitions
+        } else if (sort === 'date') {
+            const requisitions = await Requisition.find({ date: new Date(sortValue).toDateString() })
+            return requisitions
+        } else if (sort === 'term') {
+            const requisitions = await Requisition.find({ schoolYear: year, term: sortValue })
+            return requisitions
+        }
+    }
+    async function getPayments(sort, sortValue,year) {
+        if (sort === 'month') {
+            const payments = await PaymentHistory.find({ paymentYr: new Date().getFullYear(), paymentMth: sortValue })
+            return payments
+        } else if (sort === 'date') {
+            const payments = await PaymentHistory.find({ timestamp: sortValue })
+            return payments
+        } else if (sort === 'term') {
+            const payments = await PaymentHistory.find({ year, term:sortValue })
+            return payments
+        }
+
+    }
+
+    async function getSalaries(sort, sortValue,year) {
+        if (sort === 'month') {
+            const salaries = await Salary.find({ month: sortValue, paymentYear: new Date().getFullYear() })
+            return salaries
+        } else if (sort === 'date') {
+            const salaries = await Salary.find({ paymentDate: new Date(sortValue).toDateString() })
+            return salaries
+        } else if (sort === 'term') {
+            const salaries = await Salary.find({ schoolYear: year, term: sortValue })
+            return salaries
+
+        }
+
+    }
+
+
+    try {
+        let [requisitions, payments, salaries] = await Promise.all([getRequisitions(sort, sortValue,year), getPayments(sort, sortValue,year), getSalaries(sort,sortValue,year)])
+        // console.log(requisitions, payments, salaries)
+        res.status(200).json({requisitions, payments, salaries})
     } catch (error) {
         console.log(error)
     }

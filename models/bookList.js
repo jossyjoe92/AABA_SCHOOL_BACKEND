@@ -5,6 +5,10 @@ const bookListSchema = new mongoose.Schema({
         type:String,
         required:true
     },
+    lastUpdated:{
+        type:Date,
+        required:true
+    },
     list:[],
 
 })

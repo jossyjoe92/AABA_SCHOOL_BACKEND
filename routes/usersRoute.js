@@ -19,6 +19,12 @@ router.get('/studentbroad/:class',requireLogin,useCalendar,users_controller.clas
 //Get a single student Book List
 router.get('/studentbook/:id',requireLogin,useCalendar,users_controller.student_books)
 
+//Get a single student weekly Attendance
+router.get('/studentattendance/:id',requireLogin,useCalendar,users_controller.student_attendance)
+
+//Get a single student subjects
+router.get('/studentsubjects/:section',requireLogin,users_controller.student_subjects)
+
 // Update result from broadsheet
 router.put('/student-result-update/:id',requireLogin,useCalendar,users_controller.student_compute_result_update)
 

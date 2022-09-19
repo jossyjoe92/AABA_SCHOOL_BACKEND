@@ -2,6 +2,7 @@ const Staff = require('../models/staffDetails')
 const Student = require('../models/stdDetails')
 const Subject = require('../models/subject')
 const Result = require('../models/result')
+const Attendance = require('../models/attendance')
 const { request } = require('express')
 const calendar = require('../models/calendar')
 
@@ -63,7 +64,7 @@ exports.get_student_result_for_compute = async (req, res) => {
 // save student result after compute
 exports.save_student_result_after_compute = async (req, res) => {
     const { id, resultId, scores, total, average, grade, scale, year, term, stdClass } = req.body
-   
+
     if (!id || !scores || !total || !average) {
         return res.status(422).json({ error: 'Please add all the fields' })
     }
@@ -131,21 +132,21 @@ exports.save_student_result_after_compute = async (req, res) => {
 exports.save_student_result_image = async (req, res) => {
 
     const { id, resultId, resultImage } = req.body
-   
+
     if (!id || !resultImage || !resultId) {
         return res.status(422).json({ error: 'Please add all the fields' })
     }
 
     try {
 
-        const result = await Result.findOne({ studentDetails: id,year:req.calendar.year, term: req.calendar.term})
+        const result = await Result.findOne({ studentDetails: id, year: req.calendar.year, term: req.calendar.term })
             .populate('studentDetails', "_id firstname lastname section stdClass")
-        
-             result.resultImage = resultImage 
 
-             const updatedResult = await result.save()
-         
-            res.json({ result: updatedResult })
+        result.resultImage = resultImage
+
+        const updatedResult = await result.save()
+
+        res.json({ result: updatedResult })
 
     } catch (error) {
         console.log(error)
@@ -180,7 +181,7 @@ exports.teacher_comment_student_result = async (req, res) => {
     }
 }
 
-// Teacher compute student attendance
+// Teacher compute student attendance for result
 exports.compute_student_attendance = async (req, res) => {
 
     const { resultId, schOpened, present } = req.body
@@ -206,7 +207,20 @@ exports.compute_student_attendance = async (req, res) => {
     }
 }
 
-// Teacher compute student attendance
+
+// Get data to update student weekly attendance
+exports.get_student_attendance_data = async (req, res) => {
+
+    try {
+        const studentAttendance = await Attendance.findOne({ studentDetails: req.params.id, year: req.calendar.year, term: req.calendar.term })
+            .populate('studentDetails', "_id firstname lastname stdClass ")
+        res.json({ calendar: req.calendar, studentAttendance });
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+// Teacher compute student psychomoto
 exports.compute_student_psychomoto = async (req, res) => {
 
     const {
@@ -244,6 +258,41 @@ exports.compute_student_psychomoto = async (req, res) => {
         })
 
         res.json({ result, message: 'Result updated Successfully' })
+
+    } catch (error) {
+        res.json({ error: 'Error updating Data' })
+        console.log(error)
+    }
+}
+
+
+// Teacher compute student weekly attendance
+exports.save_student_weekly_attendance = async (req, res) => {
+
+    const { id, week, attendance } = req.body
+
+    const attendanceToSave = {
+        week,
+        attendance
+    }
+
+    if (!week) return res.status(422).json({ error: 'Please add all the fields' })
+
+    try {
+        // Find a student attence record for the term
+        const studentAttendance = await Attendance.findOne({ studentDetails: id, year: req.calendar.year, term: req.calendar.term })
+
+        // Filter out if exixt attendance for the specified week
+        const attendanceData = studentAttendance.attendance.filter(item => item.week !== week)
+
+        // Add week attendance to list
+        attendanceData.push(attendanceToSave)
+        studentAttendance.attendance = attendanceData
+
+        console.log(studentAttendance)
+        await studentAttendance.save()
+
+        res.status(200).json({ message: 'Attendance updated Successfully' })
 
     } catch (error) {
         res.json({ error: 'Error updating Data' })

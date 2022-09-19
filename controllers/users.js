@@ -2,9 +2,11 @@ const User = require('../models/user')
 const Student = require('../models/stdDetails')
 const Result = require('../models/result')
 const Books = require('../models/bookList')
+const Attendance = require('../models/attendance')
 const requireLogin = require('../middleware/requireLogin')
 const bcrypt = require('bcryptjs')
 const TermStart = require('../models/termStart')
+const Subjects = require('../models/subject')
 
 // Get List of students by class
 exports.student_list = async (req, res) => {
@@ -19,8 +21,33 @@ exports.student_list = async (req, res) => {
     }
 
 }
+// Get List of Books by class
+exports.book_list = async (req, res) => {
 
-// single staff Info
+    try {
+        const request = await Books.find({ bookClass: req.params.bookClass })
+
+        res.json(request)
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
+
+// Get Student Subjects by Section
+exports.student_subjects = async (req, res) => {
+
+    try {
+        const request = await Subjects.findOne({ section: req.params.section })
+        res.json(request)
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
+// single student Info
 exports.get_single_student = async (req, res) => {
 
     try {
@@ -42,7 +69,7 @@ exports.student_result = async (req, res) => {
 
             const termStart = await TermStart.findOne({})
             const result = await Result.findOne({ studentDetails: req.params.id, year: req.calendar.year, term: req.calendar.term })
-            console.log(req.params.id)
+          
             if (!result) return res.status(422).json({ error: 'This student has no result for this term yet' })
             const stdDetails = await Student.findById(req.params.id)
                 .populate('user', "_id username")
@@ -101,13 +128,86 @@ exports.student_compute_result_update = async (req, res) => {
 
 }
 
-// Get Student Book List
+// Get A Student Book List
 exports.student_books = async (req, res) => {
+    
+
     try {
         const studentBooks = await Student.findOne({ _id: req.params.id })
-        .select("id firstname middlename lastname section stdClass bookList")
-        // .populate('user', "_id username ")
-        res.json( studentBooks );
+            .select("id firstname middlename lastname section stdClass bookList")
+
+            // This functions create a new booklist for a student
+            const createNewBook = async (request)=>{
+                const createStudentBookList = request.list.map(item => {
+
+                    return {
+                        author: item.author,
+                        title: item.title,
+                        condition: 'good'
+                    }
+    
+                })
+                const bookToUpdate = {
+                    bookListDate: request.lastUpdated,
+                    list: createStudentBookList
+                }
+                // return console.log(bookToUpdate)
+                const newBookListCreated = await Student.findByIdAndUpdate(req.params.id,
+                    { $set: { bookList: bookToUpdate } }, {
+                    new: true
+                })
+                    .select("id firstname middlename lastname section stdClass bookList")
+            
+                return res.status(200).json(newBookListCreated);
+            }
+
+        //No book List have been created for this student 
+        if (!studentBooks.bookList?.list[0]) {
+            const request = await Books.findOne({ bookClass: studentBooks.stdClass })
+
+            if (!request) return res.status(422).json({ error: "No book List Found For this student" })
+            createNewBook(request)
+            
+        } else {
+            const request = await Books.findOne({ bookClass: studentBooks.stdClass })
+
+            if (studentBooks.bookList.bookListDate.toString() !== request.lastUpdated.toString()) {
+                // Student has moved to a new class or book list has been updated
+                createNewBook(request)     
+                return
+            }else{
+                // Everything is the same
+                return res.status(200).json(studentBooks);
+            }
+        }
+
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
+// Get a single student Attendance
+
+exports.student_attendance = async (req, res) => {
+
+    try {
+        const studentAttendance = await Attendance.findOne({ studentDetails:req.params.id, year: req.calendar.year,term:req.calendar.term })
+         .populate('studentDetails', "_id firstname lastname stdClass ")
+         if(!studentAttendance){
+            const studentAttendance = new Attendance({
+                year:req.calendar.year,
+                term:req.calendar.term,
+                studentDetails:req.params.id
+    
+            })
+            studentAttendance.populate('studentDetails', "_id firstname lastname stdClass ").execPopulate();
+            const stdAttendance = await studentAttendance.save()
+           
+           return  res.json({studentAttendance: stdAttendance});
+         }
+         res.json( {studentAttendance});
+
     } catch (error) {
         console.log(error)
     }

@@ -43,17 +43,13 @@ const studentSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    bookList: [{
-        year: {
-            type: Number,
-            required: true
-        },
-        term: {
-            type: Number,
-            required: true
+    bookList: {
+        bookListDate:{
+            type: Date,
+            required:true
         },
         list: []
-    }],
+    },
     photo: {
         type: String,
         default: "https://res.cloudinary.com/jossyjoe/image/upload/v1606258324/UserIcon_tmu1v6.jpg"
