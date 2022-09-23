@@ -25,6 +25,12 @@ router.get('/studentattendance/:id',requireLogin,useCalendar,users_controller.st
 //Get a single student subjects
 router.get('/studentsubjects/:section',requireLogin,users_controller.student_subjects)
 
+//Get a single student weekly performance report
+router.get('/weeklyperformancereport/:id',requireLogin,useCalendar,users_controller.weekly_performance_report)
+
+//Get a single student weekly Quiz
+router.get('/take-quiz/:stdClass',requireLogin,useCalendar,users_controller.take_quiz)
+
 // Update result from broadsheet
 router.put('/student-result-update/:id',requireLogin,useCalendar,users_controller.student_compute_result_update)
 

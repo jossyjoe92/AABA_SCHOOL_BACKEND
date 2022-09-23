@@ -3,10 +3,11 @@ const Student = require('../models/stdDetails')
 const Result = require('../models/result')
 const Books = require('../models/bookList')
 const Attendance = require('../models/attendance')
-const requireLogin = require('../middleware/requireLogin')
+const WeeklyPerformance = require('../models/weeklyPerformance')
 const bcrypt = require('bcryptjs')
 const TermStart = require('../models/termStart')
 const Subjects = require('../models/subject')
+const Quiz = require('../models/quiz')
 
 // Get List of students by class
 exports.student_list = async (req, res) => {
@@ -69,7 +70,7 @@ exports.student_result = async (req, res) => {
 
             const termStart = await TermStart.findOne({})
             const result = await Result.findOne({ studentDetails: req.params.id, year: req.calendar.year, term: req.calendar.term })
-          
+
             if (!result) return res.status(422).json({ error: 'This student has no result for this term yet' })
             const stdDetails = await Student.findById(req.params.id)
                 .populate('user', "_id username")
@@ -130,36 +131,36 @@ exports.student_compute_result_update = async (req, res) => {
 
 // Get A Student Book List
 exports.student_books = async (req, res) => {
-    
+
 
     try {
         const studentBooks = await Student.findOne({ _id: req.params.id })
             .select("id firstname middlename lastname section stdClass bookList")
 
-            // This functions create a new booklist for a student
-            const createNewBook = async (request)=>{
-                const createStudentBookList = request.list.map(item => {
+        // This functions create a new booklist for a student
+        const createNewBook = async (request) => {
+            const createStudentBookList = request.list.map(item => {
 
-                    return {
-                        author: item.author,
-                        title: item.title,
-                        condition: 'good'
-                    }
-    
-                })
-                const bookToUpdate = {
-                    bookListDate: request.lastUpdated,
-                    list: createStudentBookList
+                return {
+                    author: item.author,
+                    title: item.title,
+                    condition: 'good'
                 }
-                // return console.log(bookToUpdate)
-                const newBookListCreated = await Student.findByIdAndUpdate(req.params.id,
-                    { $set: { bookList: bookToUpdate } }, {
-                    new: true
-                })
-                    .select("id firstname middlename lastname section stdClass bookList")
-            
-                return res.status(200).json(newBookListCreated);
+
+            })
+            const bookToUpdate = {
+                bookListDate: request.lastUpdated,
+                list: createStudentBookList
             }
+            // return console.log(bookToUpdate)
+            const newBookListCreated = await Student.findByIdAndUpdate(req.params.id,
+                { $set: { bookList: bookToUpdate } }, {
+                new: true
+            })
+                .select("id firstname middlename lastname section stdClass bookList")
+
+            return res.status(200).json(newBookListCreated);
+        }
 
         //No book List have been created for this student 
         if (!studentBooks.bookList?.list[0]) {
@@ -167,15 +168,15 @@ exports.student_books = async (req, res) => {
 
             if (!request) return res.status(422).json({ error: "No book List Found For this student" })
             createNewBook(request)
-            
+
         } else {
             const request = await Books.findOne({ bookClass: studentBooks.stdClass })
 
             if (studentBooks.bookList.bookListDate.toString() !== request.lastUpdated.toString()) {
                 // Student has moved to a new class or book list has been updated
-                createNewBook(request)     
+                createNewBook(request)
                 return
-            }else{
+            } else {
                 // Everything is the same
                 return res.status(200).json(studentBooks);
             }
@@ -192,27 +193,52 @@ exports.student_books = async (req, res) => {
 exports.student_attendance = async (req, res) => {
 
     try {
-        const studentAttendance = await Attendance.findOne({ studentDetails:req.params.id, year: req.calendar.year,term:req.calendar.term })
-         .populate('studentDetails', "_id firstname lastname stdClass ")
-         if(!studentAttendance){
+        const studentAttendance = await Attendance.findOne({ studentDetails: req.params.id, year: req.calendar.year, term: req.calendar.term })
+            .populate('studentDetails', "_id firstname lastname stdClass ")
+        if (!studentAttendance) {
             const studentAttendance = new Attendance({
-                year:req.calendar.year,
-                term:req.calendar.term,
-                studentDetails:req.params.id
-    
+                year: req.calendar.year,
+                term: req.calendar.term,
+                studentDetails: req.params.id
+
             })
             studentAttendance.populate('studentDetails', "_id firstname lastname stdClass ").execPopulate();
             const stdAttendance = await studentAttendance.save()
-           
-           return  res.json({studentAttendance: stdAttendance});
-         }
-         res.json( {studentAttendance});
+
+            return res.json({ studentAttendance: stdAttendance });
+        }
+        res.json({ studentAttendance });
 
     } catch (error) {
         console.log(error)
     }
 
 }
+
+// single student Weekly Performance report
+exports.weekly_performance_report = async (req, res) => {
+    const { year, term, week } = req.calendar
+
+    try {
+        let weeklyPerformance = await WeeklyPerformance.findOne({ year, term, week, studentDetails: req.params.id })
+            .populate('studentDetails', "_id firstname middlename lastname section stdClass")
+
+        // No report created yet. Send student details
+        if (!weeklyPerformance) {
+            const student = await Student.findOne({ _id: req.params.id })
+            .select("firstname middlename lastname section stdClass")
+            weeklyPerformance = { studentDetails: student }
+
+            return res.json({calendar:req.calendar, weeklyPerformance });
+        }
+
+        res.json({calendar:req.calendar, weeklyPerformance });
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+
 
 // Reset Users Password
 exports.reset_Password = async (req, res) => {
@@ -246,4 +272,18 @@ exports.reset_Password = async (req, res) => {
         return res.status(422).json({ error: 'could not update account' })
     }
 
+}
+
+// single student Quizes
+exports.take_quiz = async (req, res) => {
+    const {year,term,week} = req.calendar
+    const {stdClass} = req.params
+    
+    try {
+        const quiz = await Quiz.find({stdClass,year,term,week})
+        .populate("submissionInfo.submittedBy","_id firstname middlename lastname photo")
+        res.json({ quiz });
+    } catch (error) {
+        console.log(error)
+    }
 }

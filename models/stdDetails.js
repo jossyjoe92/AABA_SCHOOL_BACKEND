@@ -46,6 +46,7 @@ const studentSchema = new mongoose.Schema({
     bookList: {
         bookListDate:{
             type: Date,
+            default: new Date(),
             required:true
         },
         list: []

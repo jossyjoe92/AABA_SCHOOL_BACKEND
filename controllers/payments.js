@@ -517,7 +517,6 @@ exports.financial_summary = async (req, res) => {
 
     try {
         let [requisitions, payments, salaries] = await Promise.all([getRequisitions(sort, sortValue,year), getPayments(sort, sortValue,year), getSalaries(sort,sortValue,year)])
-        // console.log(requisitions, payments, salaries)
         res.status(200).json({requisitions, payments, salaries})
     } catch (error) {
         console.log(error)
