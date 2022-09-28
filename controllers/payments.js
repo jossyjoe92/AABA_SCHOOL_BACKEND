@@ -374,7 +374,7 @@ exports.pay_salary = async (req, res) => {
 
     try {
         // Check if this staff has already been paid for the month
-        const salaryPaid = await Salary.findOne({ schoolYear, paymentYear, month })
+        const salaryPaid = await Salary.findOne({ staff_id, schoolYear, paymentYear, month })
 
         if (salaryPaid) return res.status(422).json({ error: 'This staff has been paid for the selected month. Please check payment history to edit payment' })
         const paySalary = new Salary({
@@ -471,9 +471,9 @@ exports.financial_summary = async (req, res) => {
 
     const { sort } = req.params
     const { sortValue, year } = req.query
-    
 
-    async function getRequisitions(sort, sortValue,year) {
+
+    async function getRequisitions(sort, sortValue, year) {
         if (sort === 'month') {
             const requisitions = await Requisition.find({ month: sortValue, requisitionYear: new Date().getFullYear() })
             return requisitions
@@ -485,7 +485,7 @@ exports.financial_summary = async (req, res) => {
             return requisitions
         }
     }
-    async function getPayments(sort, sortValue,year) {
+    async function getPayments(sort, sortValue, year) {
         if (sort === 'month') {
             const payments = await PaymentHistory.find({ paymentYr: new Date().getFullYear(), paymentMth: sortValue })
             return payments
@@ -493,13 +493,13 @@ exports.financial_summary = async (req, res) => {
             const payments = await PaymentHistory.find({ timestamp: sortValue })
             return payments
         } else if (sort === 'term') {
-            const payments = await PaymentHistory.find({ year, term:sortValue })
+            const payments = await PaymentHistory.find({ year, term: sortValue })
             return payments
         }
 
     }
 
-    async function getSalaries(sort, sortValue,year) {
+    async function getSalaries(sort, sortValue, year) {
         if (sort === 'month') {
             const salaries = await Salary.find({ month: sortValue, paymentYear: new Date().getFullYear() })
             return salaries
@@ -516,8 +516,8 @@ exports.financial_summary = async (req, res) => {
 
 
     try {
-        let [requisitions, payments, salaries] = await Promise.all([getRequisitions(sort, sortValue,year), getPayments(sort, sortValue,year), getSalaries(sort,sortValue,year)])
-        res.status(200).json({requisitions, payments, salaries})
+        let [requisitions, payments, salaries] = await Promise.all([getRequisitions(sort, sortValue, year), getPayments(sort, sortValue, year), getSalaries(sort, sortValue, year)])
+        res.status(200).json({ requisitions, payments, salaries })
     } catch (error) {
         console.log(error)
     }
