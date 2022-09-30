@@ -226,13 +226,13 @@ exports.weekly_performance_report = async (req, res) => {
         // No report created yet. Send student details
         if (!weeklyPerformance) {
             const student = await Student.findOne({ _id: req.params.id })
-            .select("firstname middlename lastname section stdClass")
+                .select("firstname middlename lastname section stdClass")
             weeklyPerformance = { studentDetails: student }
 
-            return res.json({calendar:req.calendar, weeklyPerformance });
+            return res.json({ calendar: req.calendar, weeklyPerformance });
         }
 
-        res.json({calendar:req.calendar, weeklyPerformance });
+        res.json({ calendar: req.calendar, weeklyPerformance });
     } catch (error) {
         console.log(error)
     }
@@ -276,14 +276,51 @@ exports.reset_Password = async (req, res) => {
 
 // single student Quizes
 exports.take_quiz = async (req, res) => {
-    const {year,term,week} = req.calendar
-    const {stdClass} = req.params
-    
+    const { year, term, week } = req.calendar
+    const { stdClass } = req.params
+
     try {
-        const quiz = await Quiz.find({stdClass,year,term,week})
-        .populate("submissionInfo.submittedBy","_id firstname middlename lastname photo")
+        const quiz = await Quiz.find({ stdClass, year, term, week })
+            .populate("submissionInfo.submittedBy", "_id firstname middlename lastname photo")
         res.json({ quiz });
     } catch (error) {
         console.log(error)
+    }
+}
+
+// single Quiz for a single student
+exports.tackle_quiz = async (req, res) => {
+    const { id } = req.params
+
+    try {
+        const quiz = await Quiz.findById(id)
+        res.json({ quiz });
+    } catch (error) {
+        console.log(error)
+    }
+}
+// single Quiz for a single student
+exports.submit_student_quiz_result = async (req, res) => {
+    const { quizId, score } = req.body
+
+    try {
+        // Get the student id and add to quiz submited by
+        const student = await Student.findOne({ user: req.user._id })
+            .select("_id")
+
+        const submissionInfo = {
+            score,
+            submittedBy: student._id
+        }
+        const quizUpdate = await Quiz.findByIdAndUpdate(quizId, {
+            $push: { submissionInfo }
+        }, {
+            new: true
+        })
+            .populate("submissionInfo.submittedBy", "_id firstname lastname middlename photo")
+        res.status(200).json({ quizUpdate });
+
+    } catch (error) {
+        res.status(400).json({ error: 'Could not submit quiz' })
     }
 }

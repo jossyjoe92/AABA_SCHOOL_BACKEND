@@ -31,9 +31,14 @@ router.get('/weeklyperformancereport/:id',requireLogin,useCalendar,users_control
 //Get a single student weekly Quiz
 router.get('/take-quiz/:stdClass',requireLogin,useCalendar,users_controller.take_quiz)
 
+//Get a single student weekly Quiz
+router.get('/tackle-quiz/:id',requireLogin,useCalendar,users_controller.tackle_quiz)
+
+//Sumit single student quiz result
+router.put('/submit-quiz',requireLogin,useCalendar,users_controller.submit_student_quiz_result)
+
 // Update result from broadsheet
 router.put('/student-result-update/:id',requireLogin,useCalendar,users_controller.student_compute_result_update)
-
 
 // Update users Password
 router.put('/reset-password/:id',requireLogin,users_controller.reset_Password)

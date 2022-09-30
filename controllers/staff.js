@@ -271,35 +271,35 @@ exports.compute_student_psychomoto = async (req, res) => {
 // Teacher compute student weekly subject report
 exports.student_weekly_subject_report = async (req, res) => {
     const { year, term, week } = req.calendar
-    const {studentDetails,subjectReport } = req.body;
+    const { studentDetails, subjectReport } = req.body;
 
     try {
         let weeklyPerformance = await WeeklyPerformance.findOne({ year, term, week, studentDetails })
-          // No report created yet. Send student details
-          if (!weeklyPerformance) {
+        // No report created yet. Send student details
+        if (!weeklyPerformance) {
             const result = new WeeklyPerformance({
                 year,
                 term,
                 week,
                 studentDetails,
-                academicPerformance:subjectReport
+                academicPerformance: subjectReport
 
             })
             const savedReport = await result.save()
 
-            return res.status(200).json({message:'report Updated Successfully'});
-        }else{
-          
+            return res.status(200).json({ message: 'report Updated Successfully' });
+        } else {
+
             weeklyPerformance.academicPerformance = subjectReport
 
             await weeklyPerformance.save()
-            return res.status(200).json({message:'report Updated Successfully'});
+            return res.status(200).json({ message: 'report Updated Successfully' });
         }
 
     } catch (error) {
         console.log(error)
         res.json({ error: 'Error updating Data' })
-      
+
     }
 }
 
@@ -307,12 +307,12 @@ exports.student_weekly_subject_report = async (req, res) => {
 // Teacher compute student weekly subject report
 exports.student_weekly_psychomoto_report = async (req, res) => {
     const { year, term, week } = req.calendar
-    const {studentDetails,psychomotoReport } = req.body;
+    const { studentDetails, psychomotoReport } = req.body;
 
     try {
         let weeklyPerformance = await WeeklyPerformance.findOne({ year, term, week, studentDetails })
-          // No report created yet. Send student details
-          if (!weeklyPerformance) {
+        // No report created yet. Send student details
+        if (!weeklyPerformance) {
             const result = new WeeklyPerformance({
                 year,
                 term,
@@ -323,31 +323,31 @@ exports.student_weekly_psychomoto_report = async (req, res) => {
             })
             const savedReport = await result.save()
 
-            return res.status(200).json({message:'report Updated Successfully'});
-        }else{
-          
-            weeklyPerformance.psychomoto =  psychomotoReport
+            return res.status(200).json({ message: 'report Updated Successfully' });
+        } else {
+
+            weeklyPerformance.psychomoto = psychomotoReport
 
             await weeklyPerformance.save()
-            return res.status(200).json({message:'report Updated Successfully'});
+            return res.status(200).json({ message: 'report Updated Successfully' });
         }
 
     } catch (error) {
         console.log(error)
         res.json({ error: 'Error updating Data' })
-      
+
     }
 }
 
 // Teacher compute student weekly subject report
 exports.weekly_teacher_remark = async (req, res) => {
     const { year, term, week } = req.calendar
-    const {studentDetails,teacherComment } = req.body;
+    const { studentDetails, teacherComment } = req.body;
 
     try {
         let weeklyPerformance = await WeeklyPerformance.findOne({ year, term, week, studentDetails })
-          // No report created yet. Send student details
-          if (!weeklyPerformance) {
+        // No report created yet. Send student details
+        if (!weeklyPerformance) {
             const result = new WeeklyPerformance({
                 year,
                 term,
@@ -358,19 +358,19 @@ exports.weekly_teacher_remark = async (req, res) => {
             })
             const savedReport = await result.save()
 
-            return res.status(200).json({message:'report Updated Successfully'});
-        }else{
-          
-            weeklyPerformance.teacherComment =  teacherComment
+            return res.status(200).json({ message: 'report Updated Successfully' });
+        } else {
+
+            weeklyPerformance.teacherComment = teacherComment
 
             await weeklyPerformance.save()
-            return res.status(200).json({message:'report Updated Successfully'});
+            return res.status(200).json({ message: 'report Updated Successfully' });
         }
 
     } catch (error) {
         console.log(error)
         res.json({ error: 'Error updating Data' })
-      
+
     }
 }
 
@@ -408,10 +408,9 @@ exports.save_student_weekly_attendance = async (req, res) => {
 }
 
 // Save New quiz
-
-exports.save_new_quiz= async (req, res) => {
-    const {deadline,questions,subject, stdClass } = req.body
-    const {year,term,week} = req.calendar
+exports.save_new_quiz = async (req, res) => {
+    const { deadline, questions, subject, stdClass } = req.body
+    const { year, term, week } = req.calendar
 
     if (!deadline || !questions || !subject || !stdClass) {
         return res.status(422).json({ error: 'Please add all the fields' })
@@ -419,23 +418,42 @@ exports.save_new_quiz= async (req, res) => {
 
     try {
 
-                const quiz = new Quiz({
-                    year,
-                    term,
-                    week,
-                    deadline:new Date(deadline).toDateString(),
-                    questions,
-                    subject,
-                    stdClass,
+        const quiz = new Quiz({
+            year,
+            term,
+            week,
+            deadline: new Date(deadline).toDateString(),
+            questions,
+            subject,
+            stdClass,
 
-                })
-                const savedQuiz = await quiz.save()
-                res.status(200).json({ message:"Assignment saved Successfully"})
-            
-        
+        })
+        const savedQuiz = await quiz.save()
+        res.status(200).json({ message: "Assignment saved Successfully" })
+
+
 
     } catch (error) {
         console.log(error)
         return res.status(404).json({ error: "Could Not save Assignment" })
+    }
+}
+
+// Quiz Report for a class u week
+exports.get_class_quiz_data = async (req, res) => {
+    const { week } = req.query
+    const { stdClass } = req.params
+    const { year, term } = req.calendar
+
+    try {
+        const quizData = await Quiz.find({ stdClass, year,term, week })
+            .populate("submissionInfo.submittedBy", "_id firstname middlename lastname photo")
+
+            res.status(200).json({quizData})
+
+
+    } catch (error) {
+        console.log(error)
+        return res.status(404).json({ error: "Could Not get Assignment" })
     }
 }

@@ -120,7 +120,7 @@ exports.user_login = async (req, res) => {
             // Get Other std details
             if (role === 'student') {
                 const student = await StdDetails.findOne({ user: _id })
-                    .select('_id stdClass  section photo')
+                    .select('_id firstname lastname stdClass  section photo')
                 return res.status(200).json({ token, message: 'User login Succesful', user: { _id, role, username, isVerified }, student })
             }
             res.status(200).json({ token, message: 'User login Succesful', user: { _id, role, username, isVerified } })
