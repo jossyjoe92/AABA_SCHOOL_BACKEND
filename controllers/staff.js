@@ -44,10 +44,11 @@ exports.get_student_result_for_compute = async (req, res) => {
 
         // Check if this student result for the term has been computed
         const result = await Result.findOne({ studentDetails: req.params.id, year: req.calendar.year, term: req.calendar.term })
-
+        
         if (!result) {
             const student = await Student.findOne({ _id: req.params.id })
                 .select("id section firstname lastname DOB stdClass sex stateOfOrigin photo")
+        
 
             const subjects = await Subject.findOne({ section: student.section })
                 .select("id subjects")
@@ -446,10 +447,10 @@ exports.get_class_quiz_data = async (req, res) => {
     const { year, term } = req.calendar
 
     try {
-        const quizData = await Quiz.find({ stdClass, year,term, week })
+        const quizData = await Quiz.find({ stdClass, year, term, week })
             .populate("submissionInfo.submittedBy", "_id firstname middlename lastname photo")
 
-            res.status(200).json({quizData})
+        res.status(200).json({ quizData })
 
 
     } catch (error) {

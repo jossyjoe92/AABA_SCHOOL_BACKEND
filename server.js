@@ -15,7 +15,7 @@ require('dotenv').config();
 const cors = require('cors');
 
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5002;
 connectDB();
 // schoolCalendar();
 // cron.schedule('10 6 * * 5', () => {

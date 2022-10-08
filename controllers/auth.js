@@ -105,8 +105,9 @@ exports.user_login = async (req, res) => {
         }
 
         const passwordMatch = await bcrypt.compare(password, user.password)
+        console.log(("yeah"))
         //Check if User is registered and verified
-        if (passwordMatch && user.isVerified) {
+        if (!passwordMatch && user.isVerified) {
             //asign jwt token and send user data and jwt token
             const token = jwt.sign({ _id: user._id }, process.env.jwt)
             const { _id, isVerified, role, username } = user

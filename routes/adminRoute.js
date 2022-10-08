@@ -60,6 +60,8 @@ router.put('/hm-remark',requireLogin,checkRole(['super-admin','admin']),useCalen
 //Update School Event Calendar
 router.put('/update-eventcalendar',requireLogin,checkRole(['super-admin','admin']),useCalendar,admin_controller.update_event_calender)
 
+//Promote student to new class
+router.put('/promote-students',requireLogin,checkRole(['super-admin','admin']),useCalendar,admin_controller.promote_student_to_newClass)
 
 //Create Subject List
 router.post('/newsubjectList',requireLogin,checkRole(['super-admin','admin']),admin_controller.new_subject_list)

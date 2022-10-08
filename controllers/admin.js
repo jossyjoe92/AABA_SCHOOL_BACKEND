@@ -272,13 +272,10 @@ exports.update_event_calender = async (req, res) => {
             const data = await calendar.save()
             return res.json({ message: "Event Calendar Updated successfully" });
         }
-        console.log(eventcalendar)
-        return
+
         const data = await SchoolEventCalendar.findOneAndUpdate({ year, term }, {
             $set: { year, term, events: eventData }
         }, { new: true })
-
-        console.log(data)
 
         res.json({ message: "Event Calendar Updated successfully" });
 
@@ -391,6 +388,56 @@ exports.delete_staff_account = async (req, res) => {
     } catch (error) {
         console.log(error)
         return res.status(422).json({ error: 'could not delete account' })
+    }
+}
+
+//Promote student to new class
+exports.promote_student_to_newClass = async (req, res) => {
+
+    const { stdClass, newClass } = req.body
+
+    console.log(newClass)
+    try {
+        const classStudents = await Student.find({ stdClass })
+        if (newClass === "Primary1") {
+
+            for (let i = 0; i < classStudents.length; i++) {
+                const item = classStudents[i];
+                item.stdClass = newClass
+                item.section = "Lower-Grade"
+                await item.save()
+
+            }
+        } else if (newClass === "JSS1(Gold)" || newClass === "JSS1(Diamond)") {
+            for (let i = 0; i < classStudents.length; i++) {
+                const item = classStudents[i];
+                item.stdClass = newClass
+                item.section = "Secondary"
+                await item.save()
+
+            }
+
+        } else if (newClass === "Primary4A" || newClass === "Primary4B") {
+            for (let i = 0; i < classStudents.length; i++) {
+                const item = classStudents[i];
+                item.stdClass = newClass
+                item.section = "Upper-Grade"
+                await item.save()
+
+            }
+        } else {
+            for (let i = 0; i < classStudents.length; i++) {
+                const item = classStudents[i];
+                item.stdClass = newClass
+                await item.save()
+
+            }
+        }
+
+        res.status(200).json({ message: "Student Promoted Successfully" });
+    } catch (error) {
+        console.log(error)
+        return res.status(422).json({ error: 'could not promote students.' })
     }
 }
 
