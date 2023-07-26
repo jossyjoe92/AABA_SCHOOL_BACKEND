@@ -273,6 +273,7 @@ exports.update_event_calender = async (req, res) => {
             return res.json({ message: "Event Calendar Updated successfully" });
         }
 
+   
         const data = await SchoolEventCalendar.findOneAndUpdate({ year, term }, {
             $set: { year, term, events: eventData }
         }, { new: true })

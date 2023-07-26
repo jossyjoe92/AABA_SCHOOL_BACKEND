@@ -10,7 +10,7 @@ const staffRouter = require('./routes/staffRoute');
 const paymentRouter = require('./routes/payments');
 const schoolCalendar = require('./config/schoolCalendar')
 // const cron = require('node-cron');
-
+const morgan = require('morgan');
 require('dotenv').config();
 const cors = require('cors');
 
@@ -23,7 +23,7 @@ connectDB();
 //     schoolCalendar();
 //   });
 const app = express();
-
+app.use(morgan('tiny'));
 app.use(cors())
 // app.use(express.json());
 // app.use(express.urlencoded({ extended: true }));
