@@ -21,6 +21,8 @@ router.get('/staff-list',requireLogin,checkRole(['super-admin','admin','accounta
 //Student list By class
 router.get('/student-list/:stdClass',requireLogin,checkRole(['super-admin','admin','accountant']),users_controller.student_list)
 
+//Search For item
+router.post('/search-students',requireLogin,checkRole(['super-admin','admin','accountant']),users_controller.search_students)
 //Student Booklist By class
 router.get('/book-list/:bookClass',requireLogin,checkRole(['super-admin','admin','staff']),users_controller.book_list)
 

@@ -1,65 +1,74 @@
 const mongoose = require('mongoose')
-const {ObjectId} = mongoose.Schema.Types
+const { ObjectId } = mongoose.Schema.Types
 
 const resultSchema = new mongoose.Schema({
-   year:{
-    type:Number,
-   },
-   term:{
-    type:Number,
-   },
-    scores:[],
-    class:{
-        type:String
+    year: {
+        type: Number,
     },
-    total:{
-        type:Number,
-        default:0
+    term: {
+        type: Number,
     },
-    average:{
-        type:Number,
-        default:0
-        
+    scores: [],
+    class: {
+        type: String
     },
-    grade:{
-        type:String
+    total: {
+        type: Number,
+        default: 0
     },
-     scale:{
-        type:String
+    average: {
+        type: Number,
+        default: 0
+
     },
-    teacherComment:{
-        teacherName:{type:String},
-        comment:{type:String},
+    class_highest_average: {
+        type: Number,
+        default: 0
+
     },
-    hmComment:{
-        hmName:{type:String},
-        comment:{type:String},
+    class_lowest_average: {
+        type: Number,
+        default: 0
     },
-    stdAttendance:{
-        schOpened:{type:Number},
-        present:{type:Number},
+    grade: {
+        type: String
     },
-    psychomoto:{
-            attentiveness:{type:String},
-            honesty:{type:String},
-            politeness:{type:String},
-            neatness:{type:String},
-            punctuality:{type:String},
-            selfControl:{type:String},
-            obedience:{type:String},
-            reliability:{type:String},
-            responsibility:{type:String},
-            relationship:{type:String}
-        
+    scale: {
+        type: String
     },
-    resultImage:{
-        type:String
+    teacherComment: {
+        teacherName: { type: String },
+        comment: { type: String },
     },
-    studentDetails:{
-        type:ObjectId,
-        ref:'Student'
+    hmComment: {
+        hmName: { type: String },
+        comment: { type: String },
+    },
+    stdAttendance: {
+        schOpened: { type: Number },
+        present: { type: Number },
+    },
+    psychomoto: {
+        attentiveness: { type: String },
+        honesty: { type: String },
+        politeness: { type: String },
+        neatness: { type: String },
+        punctuality: { type: String },
+        selfControl: { type: String },
+        obedience: { type: String },
+        reliability: { type: String },
+        responsibility: { type: String },
+        relationship: { type: String }
+
+    },
+    resultImage: {
+        type: String
+    },
+    studentDetails: {
+        type: ObjectId,
+        ref: 'Student'
     }
-},{
+}, {
     timestamps: true
 })
 

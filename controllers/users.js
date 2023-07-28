@@ -22,6 +22,27 @@ exports.student_list = async (req, res) => {
     }
 
 }
+
+exports.search_students = async (req, res) => {
+    // let userPattern = new RegExp("^"+req.body.query)
+
+    const searchKeyword = req.body.query ? {
+        $or: [
+            { firstname: { $regex: req.body.query, $options: 'i' } }, // 'i' option makes it case-insensitive
+            { middlename: { $regex: req.body.query, $options: 'i' } },
+            { lastname: { $regex: req.body.query, $options: 'i' } }
+        ]
+    } : {};
+
+    try {
+        const students = await Student.find({ ...searchKeyword });
+
+        res.status(200).json({ students });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Error searching for students." });
+    }
+};
 // Get List of Books by class
 exports.book_list = async (req, res) => {
 
@@ -54,7 +75,6 @@ exports.get_single_student = async (req, res) => {
     try {
         const student = await Student.findOne({ _id: req.params.id })
             .populate('user', "_id username ")
-
         res.json({ student });
     } catch (error) {
         console.log(error)
