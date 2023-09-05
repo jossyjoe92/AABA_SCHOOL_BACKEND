@@ -57,7 +57,6 @@ exports.payment_by_term = async (req, res) => {
         if (!stdClass) {
             const paymentdetails = await PaymentHistory.find({ year, term })
                 .populate('studentDetails', "_id firstname middlename lastname stdClass")
-            // console.log(paymentdetails)
             res.status(200).json(paymentdetails)
         } else {
             const paymentdetails = await PaymentHistory.find({ year, term, stdClass })
