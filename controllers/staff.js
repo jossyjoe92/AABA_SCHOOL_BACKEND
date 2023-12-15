@@ -44,11 +44,11 @@ exports.get_student_result_for_compute = async (req, res) => {
 
         // Check if this student result for the term has been computed
         const result = await Result.findOne({ studentDetails: req.params.id, year: req.calendar.year, term: req.calendar.term })
-        
+
         if (!result) {
             const student = await Student.findOne({ _id: req.params.id })
                 .select("id section firstname lastname DOB stdClass sex stateOfOrigin photo")
-        
+
 
             const subjects = await Subject.findOne({ section: student.section })
                 .select("id subjects")
@@ -153,7 +153,7 @@ exports.save_student_result_image = async (req, res) => {
 
     } catch (error) {
         console.log(error)
-        // return res.status(404).json({ error: "student not found" })
+        return res.status(404).json({ error: "student not found" })
     }
 }
 
