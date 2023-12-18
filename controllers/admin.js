@@ -9,7 +9,6 @@ const Result = require('../models/result')
 const TermStart = require('../models/termStart')
 const bcrypt = require('bcryptjs')
 
-
 //Staff Validation List
 exports.staff_validation_list = async (req, res) => {
     try {
@@ -273,7 +272,7 @@ exports.update_event_calender = async (req, res) => {
             return res.json({ message: "Event Calendar Updated successfully" });
         }
 
-   
+
         const data = await SchoolEventCalendar.findOneAndUpdate({ year, term }, {
             $set: { year, term, events: eventData }
         }, { new: true })
@@ -441,5 +440,6 @@ exports.promote_student_to_newClass = async (req, res) => {
         return res.status(422).json({ error: 'could not promote students.' })
     }
 }
+
 
 
