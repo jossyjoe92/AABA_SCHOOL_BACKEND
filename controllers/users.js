@@ -91,13 +91,26 @@ exports.student_result = async (req, res) => {
             const termStart = await TermStart.findOne({})
             const result = await Result.findOne({ studentDetails: req.params.id, year: req.calendar.year, term: req.calendar.term })
 
-            if (!result) return res.status(422).json({ error: 'This student has no result for this term yet' })
+            // if (!result) return res.status(422).json({ error: 'This student has no result for this term yet' })
+
             const stdDetails = await Student.findById(req.params.id)
                 .populate('user', "_id username")
-            return res.status(200).json({ stdDetails, termStart, result })
+            // If it's third term Fetch previous terms result
+            if (req.calendar.term === 3) {
+
+                const secondTerm = await Result.findOne({ studentDetails: req.params.id, year: req.calendar.year, term: req.calendar.term - 1 })
+                    .select("scores total average")
+                const firstTerm = await Result.findOne({ studentDetails: req.params.id, year: req.calendar.year, term: req.calendar.term - 2 })
+                    .select("scores total average")
+
+
+                return res.status(200).json({ stdDetails, termStart, result, firstTerm, secondTerm })
+            }
+            return res.status(200).json({ stdDetails, termStart, result, })
         } else {
             // This is from the student portal
             // const termStart = await TermStart.findOne({})
+
 
             const result = await Result.findOne({ studentDetails: req.params.id, year: req.calendar.year, term: req.calendar.term })
 
