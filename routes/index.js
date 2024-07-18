@@ -9,10 +9,10 @@ router.get('/', async function (req, res) {
   // res.json('Hello! welcome to Beloved Dais');
   // Make an API call to another domain
   const response = await axios.get('https://afcs-app.onrender.com');
-  console.log(response)
+  console.log(response.data)
 
   // Send the response from the external API back to the client
-  res.status(200).json(response);
+  res.status(200).json(response.data);
 
 });
 
