@@ -1,11 +1,18 @@
 const express = require('express');
 const router = express.Router();
+const axios = require('axios');
 
 const user_controller = require('../controllers/users');
 
 //GET index page. 
-router.get('/', function(req, res) {
+router.get('/', async function (req, res) {
   res.json('Hello! welcome to Beloved Dais');
+  // Make an API call to another domain
+  const response = await axios.get('https://afcs-app.onrender.com');
+
+  // Send the response from the external API back to the client
+  res.status(200).json(response);
+
 });
 
 module.exports = router;
