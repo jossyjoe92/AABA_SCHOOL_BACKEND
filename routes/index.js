@@ -6,7 +6,7 @@ const user_controller = require('../controllers/users');
 
 //GET index page. 
 router.get('/', async function (req, res) {
-  res.json('Hello! welcome to Beloved Dais');
+  // res.json('Hello! welcome to Beloved Dais');
   // Make an API call to another domain
   const response = await axios.get('https://afcs-app.onrender.com');
 
